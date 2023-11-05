@@ -9,7 +9,7 @@ class Client(Protocol):
         self.factory.parser.parse(data)
 
     def connectionMade(self):
-        pass
+        self.factory.parser.network = self
 
     def send(self, data: bytes):
         self.transport.write(data)
@@ -19,4 +19,4 @@ class ClFactory(ClientFactory):
     protocol = Client
 
     def __init__(self, parser: Parser):
-        self.parser = parser
+        self.parser: Parser = parser
