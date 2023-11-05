@@ -1,0 +1,48 @@
+{
+    {
+        type = [status|change]
+        section = [board|player|misc],
+        item = [],
+        attribute = [],
+        value = ...
+    },
+    ...
+}
+
+When connected to the server, clent receives message:
+{
+    {
+        type = status,
+        section = misc,
+        item = my_uuid,
+        value = "xxxxxx-xxxx-xxxx-xxxxxx",
+    }
+    {
+        type = status,
+        section = misc,
+        item = my_id,
+        value = x  # 0-3
+    }
+}
+
+Client sends messages to the server in this form (unlike server, client can send only one request at a time:
+{
+    my_uuid = xxxxxx-xxxx-xxxx-xxxxxx
+    action = "xxx"
+    parameters = {} # depends on the action
+}
+
+Server processes the message. If the request can't be done, sends a message to the sender only:
+{
+    {
+        type = error,
+        action = {},
+        error_message = "xyz"
+    }
+}
+
+Otherwise broadcasts to all players the changes
+
+Suggestions:
+    - type = status could be changed to type = init or removed completely. The original idea was that status was
+      intended for client checking the values with no real value change
