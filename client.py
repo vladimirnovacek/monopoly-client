@@ -4,6 +4,7 @@ from interfaces import Parser
 
 
 class Client(Protocol):
+    factory: "ClFactory"
 
     def dataReceived(self, data: bytes):
         self.factory.parser.parse(data)

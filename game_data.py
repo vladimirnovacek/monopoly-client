@@ -29,6 +29,9 @@ class Misc(TypedDict, total=False):
 
 
 class GameData:
+    """
+    Stores and maintains the game data.
+    """
 
     def __init__(self):
         self.observers: list[Observer] = []
@@ -44,24 +47,41 @@ class GameData:
     def __getitem__(self, item):
         return getattr(self, item)
 
+    def __repr__(self):
+        return f"{self.__class__.__name__}({self.__dict__})"
+
     def register(self, observer: Observer):
+        """
+        Registers an observer. The observer will be notified when the game data changes.
+        :param observer:
+        :return:
+        """
         self.observers.append(observer)
 
     @overload
-    def set(self, section: str, item: str | int, value: Any):
+    def update(self, *, section: str, item: str | int, value: Any):
         ...
 
     @overload
-    def set(self, section: str, item: str | int, attribute: str, value: Any):
+    def update(self, *, section: str, item: str | int, attribute: str, value: Any):
         ...
 
-    def set(self, section: str, item: str | int, attribute_or_value: str | Any, value: Any = None):
+    def update(self, *, section: str, item: str | int, attribute: str | Any = None, value: Any):
+        """
+        Updates the game data and notifies the observers.
+        :param section:
+        :param item:
+        :param attribute:
+        :param value:
+        :return:
+        """
         for observer in self.observers:
-            observer.update_data(section, item, attribute_or_value, value)
-        if value is not None:
-            self[section][item][attribute_or_value] = value
+            observer.update(section=section, item=item, attribute=attribute, value=value)
+        if attribute is not None:
+            self[section][item][attribute] = value
         else:
-            self[section][item] = attribute_or_value
+            self[section][item] = value
+        print(self)
 
 
 '''

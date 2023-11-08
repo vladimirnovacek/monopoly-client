@@ -3,6 +3,7 @@ import tkinter.ttk as ttk
 import typing
 
 import config
+from game_data import GameData
 
 
 class Lobby(tk.Tk):
@@ -21,6 +22,7 @@ class Lobby(tk.Tk):
         """
 
         def __init__(self, lobby):
+            self.master = lobby
             self._game_data = {
                 "players": [
                     {
@@ -29,7 +31,10 @@ class Lobby(tk.Tk):
                         "token": tk.StringVar(lobby, ""),
                         "ready": tk.BooleanVar(lobby, False)
                     } for i in range(4)
-                ]
+                ],
+                "misc": {
+                    "my_id": tk.IntVar(lobby, -1),
+                }
             }
 
         def __getitem__(self, item):
@@ -42,14 +47,21 @@ class Lobby(tk.Tk):
                 return False
             return True
 
-        def update(self, section, item, attribute_or_value, value):
-            if section in self._game_data and 0 <= item < len(self._game_data[section]) \
-                    and attribute_or_value in self._game_data[section][item]:
-                self._game_data[section][item][attribute_or_value].set(value)
+        def update(self, *, section, item, attribute=None, value):
+            if section not in self._game_data:
+                return
+            if section == "players" and (\
+                0 >= item > len(self._game_data[section]) \
+                or attribute not in self._game_data[section][item]
+            ):
+                return
+            self._game_data[section][item][attribute].set(value)
+            if section == "misc" and item == "my_id":
+                self.master.set_my_player_id()
 
     def __init__(self):
         super().__init__()
-        self.game_data = self.GameData(self)
+        self.game_data: GameData = self.GameData(self)
         self.tokens_list: list = config.available_tokens
         """ List of available tokens """
         self.table: tk.Frame = tk.Frame(self)
@@ -61,18 +73,13 @@ class Lobby(tk.Tk):
         self.table.pack()
         self.buttons.pack()
 
-    # def set_my_player_id(self, player_id):
-    #     self.table_elements[player_id + 1][0].configure(state=tk.NORMAL)
-    #     self.table_elements[player_id + 1][0].var.trace_add(
-    #         "write", lambda *_, var=self.table_elements[player_id + 1][0].var: self.main.command.change_name(var.get()))
-    #     self.table_elements[player_id + 1][1].configure(state="readonly")
-    #     self.table_elements[player_id + 1][1].var.trace_add(
-    #         "write",
-    #         lambda *_, var=self.table_elements[player_id + 1][1].var: self.main.command.change_token(var.get()))
-    #     self.table_elements[player_id + 1][2].configure(state=tk.NORMAL)
-    #     self.table_elements[player_id + 1][2].var.trace_add(
-    #         "write",
-    #         lambda *_, var=self.table_elements[player_id + 1][2].var: self.main.command.ready(bool(var.get())))
+    def set_my_player_id(self):
+        my_id = self.game_data["misc"]["my_id"].get()
+        if my_id == -1:
+            return
+        self.table_elements[my_id + 1][0].configure(state=tk.NORMAL)
+        self.table_elements[my_id + 1][1].configure(state="readonly")
+        self.table_elements[my_id + 1][2].configure(state=tk.NORMAL)
 
     def _fill_table_elements(self) -> list[list]:
         table_elements: list[list] = [[
@@ -105,9 +112,3 @@ class Lobby(tk.Tk):
                 table_elements[i + 1].append(v)  # place element to the list
                 table_elements[i + 1][j].grid(column=j, row=i + 1, padx=5, pady=5)  # Place element to the grid
         return table_elements
-
-    def update_data(self, section, item, attribute_or_value, value):
-        if section in self.game_data:
-            if 0 <= item < len(self.game_data[section]) \
-                    and attribute_or_value in self.game_data[section][item]:
-                self.game_data[section][item][attribute_or_value].set(value)
