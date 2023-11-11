@@ -41,21 +41,39 @@ class Lobby(tk.Tk):
             return self._game_data[item]
 
         def __contains__(self, item):
+            if isinstance(item, typing.Iterable):
+                try:
+                    value = self
+                    for i in item:
+                        value = value[i]
+                except (ValueError, KeyError):
+                    return False
+                return True
             try:
-                self.__getitem__(item)
+                if isinstance(item, typing.Iterable):
+                    value = self
+                    for i in item:
+                        value = self[i]
+                else:
+                    self.__getitem__(item)
             except (ValueError, KeyError):
                 return False
             return True
 
+        def select(self, keys: typing.Iterable):
+            item = self
+            for key in keys:
+                item = item[key]
+            return item
+
         def update(self, *, section, item, attribute=None, value):
-            if section not in self._game_data:
+            if attribute:
+                keys = (section, item, attribute)
+            else:
+                keys = (section, item)
+            if keys not in self:
                 return
-            if section == "players" and (\
-                0 >= item > len(self._game_data[section]) \
-                or attribute not in self._game_data[section][item]
-            ):
-                return
-            self._game_data[section][item][attribute].set(value)
+            self.select(keys).set(value)
             if section == "misc" and item == "my_id":
                 self.master.set_my_player_id()
 
@@ -76,6 +94,7 @@ class Lobby(tk.Tk):
     def set_my_player_id(self):
         my_id = self.game_data["misc"]["my_id"].get()
         if my_id == -1:
+            print("My_id is not set yet.")
             return
         self.table_elements[my_id + 1][0].configure(state=tk.NORMAL)
         self.table_elements[my_id + 1][1].configure(state="readonly")
