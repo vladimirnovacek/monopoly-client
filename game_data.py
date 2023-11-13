@@ -37,10 +37,10 @@ class GameData:
         self.observers: list[Observer] = []
         self.fields: dict[int, Field] = {}
         self.players: list[Player] = [
-            {"player_id": 0, "name": "", "token": "", "cash": 0, "field_id": -1, "ready": False},
             {"player_id": 1, "name": "", "token": "", "cash": 0, "field_id": -1, "ready": False},
             {"player_id": 2, "name": "", "token": "", "cash": 0, "field_id": -1, "ready": False},
-            {"player_id": 3, "name": "", "token": "", "cash": 0, "field_id": -1, "ready": False}
+            {"player_id": 3, "name": "", "token": "", "cash": 0, "field_id": -1, "ready": False},
+            {"player_id": 4, "name": "", "token": "", "cash": 0, "field_id": -1, "ready": False}
         ]
         self.misc: Misc = {}
 

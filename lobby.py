@@ -96,9 +96,9 @@ class Lobby(tk.Tk):
         if my_id == -1:
             print("My_id is not set yet.")
             return
-        self.table_elements[my_id + 1][0].configure(state=tk.NORMAL)
-        self.table_elements[my_id + 1][1].configure(state="readonly")
-        self.table_elements[my_id + 1][2].configure(state=tk.NORMAL)
+        self.table_elements[my_id][0].configure(state=tk.NORMAL)
+        self.table_elements[my_id][1].configure(state="readonly")
+        self.table_elements[my_id][2].configure(state=tk.NORMAL)
 
     def _fill_table_elements(self) -> list[list]:
         table_elements: list[list] = [[
