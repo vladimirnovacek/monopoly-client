@@ -3,7 +3,7 @@ import tkinter.ttk as ttk
 import typing
 
 import config
-from game_data import GameData
+from message_factory import MessageFactory
 
 
 class Lobby(tk.Tk):
@@ -26,14 +26,14 @@ class Lobby(tk.Tk):
             self._game_data = {
                 "players": [
                     {
-                        "player_id": tk.IntVar(lobby, i),
-                        "name": tk.StringVar(lobby, ""),
-                        "token": tk.StringVar(lobby, ""),
-                        "ready": tk.BooleanVar(lobby, False)
+                        "player_id": tk.IntVar(lobby, i, name=f"players.{i}.player_id"),
+                        "name": tk.StringVar(lobby, "", name=f"players.{i}.name"),
+                        "token": tk.StringVar(lobby, "", name=f"players.{i}.token"),
+                        "ready": tk.BooleanVar(lobby, False, name=f"players.{i}.ready")
                     } for i in range(4)
                 ],
                 "misc": {
-                    "my_id": tk.IntVar(lobby, -1),
+                    "my_id": tk.IntVar(lobby, -1, name=f"misc.my_id"),
                 }
             }
 
@@ -46,21 +46,21 @@ class Lobby(tk.Tk):
                     value = self
                     for i in item:
                         value = value[i]
-                except (ValueError, KeyError):
+                except (IndexError, KeyError):
                     return False
                 return True
             try:
                 if isinstance(item, typing.Iterable):
-                    value = self
+                    _ = self
                     for i in item:
-                        value = self[i]
+                        _ = self[i]
                 else:
                     self.__getitem__(item)
             except (ValueError, KeyError):
                 return False
             return True
 
-        def select(self, keys: typing.Iterable):
+        def select(self, keys: typing.Iterable) -> tk.IntVar | tk.StringVar | tk.BooleanVar:
             item = self
             for key in keys:
                 item = item[key]
@@ -77,9 +77,10 @@ class Lobby(tk.Tk):
             if section == "misc" and item == "my_id":
                 self.master.set_my_player_id()
 
-    def __init__(self):
+    def __init__(self, message_factory: MessageFactory):
         super().__init__()
-        self.game_data: GameData = self.GameData(self)
+        self.game_data: Lobby.GameData = self.GameData(self)
+        self.message_factory = message_factory
         self.tokens_list: list = config.available_tokens
         """ List of available tokens """
         self.table: tk.Frame = tk.Frame(self)
@@ -96,9 +97,28 @@ class Lobby(tk.Tk):
         if my_id == -1:
             print("My_id is not set yet.")
             return
-        self.table_elements[my_id][0].configure(state=tk.NORMAL)
-        self.table_elements[my_id][1].configure(state="readonly")
-        self.table_elements[my_id][2].configure(state=tk.NORMAL)
+        key = ["players", my_id]
+        name_entry: tk.Entry = self.table_elements[my_id + 1][0]
+        name_entry.configure(state=tk.NORMAL)
+        name_entry.var = self.game_data.select(key + ["name"])
+        name_entry.var.trace_add("write", self._notify)
+        token_combobox: ttk.Combobox = self.table_elements[my_id + 1][1]
+        token_combobox.configure(state="readonly")
+        token_combobox.var = self.game_data.select(key + ["token"])
+        token_combobox.var.trace_add("write", self._notify)
+        ready_checkbox: ttk.Checkbutton = self.table_elements[my_id + 1][2]
+        ready_checkbox.configure(state=tk.NORMAL)
+        ready_checkbox.var = self.game_data.select(key + ["ready"])
+        ready_checkbox.var.trace_add("write", self._notify)
+
+    def _notify(self, name: str, something: str, mode: str):
+        keys = name.split(".")
+        keys[1] = int(keys[1])
+        value = self.game_data.select(keys).get()
+        self.message_factory.send(
+            "user_info",
+            {"section": keys[0], "item": keys[1], "attribute": keys[2], "value": value}
+        )
 
     def _fill_table_elements(self) -> list[list]:
         table_elements: list[list] = [[
