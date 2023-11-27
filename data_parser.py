@@ -11,8 +11,8 @@ class MessageParser:
     """
 
     def __init__(self, game_data: GameData):
-        self.game_data = game_data
-        self.network: Protocol | None = None
+        self.game_data: GameData = game_data
+        self.network: Protocol | None = None  # Assigned after successful connection
 
     def parse(self, data: bytes):
         """
