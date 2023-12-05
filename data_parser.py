@@ -1,8 +1,17 @@
 import pickle
+import uuid
+from typing import Literal, Optional, Any, TypedDict
 
 from twisted.internet.protocol import Protocol
 
 from game_data import GameData
+
+
+class ServerMessage(TypedDict):
+    section: Literal["fields", "players", "misc"]
+    item: str | uuid.UUID
+    attribute: Optional[str]
+    value: Any
 
 
 class MessageParser:
@@ -20,8 +29,7 @@ class MessageParser:
         :param data: The message to parse.
         :return:
         """
-        message_list = pickle.loads(data)
-        print(f"Received message: {message_list}")
+        message_list: list[ServerMessage] = pickle.loads(data)
         for message in message_list:
             self.game_data.update(**message)
 

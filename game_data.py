@@ -1,5 +1,6 @@
 
 from typing import TypedDict, Any, overload
+from uuid import UUID
 
 from interfaces import Observer
 
@@ -24,7 +25,7 @@ class Misc(TypedDict, total=False):
     on_turn: int
     last_roll: tuple
     my_id: int
-    my_uuid: str
+    my_uuid: UUID
     players_order: list[int]
 
 
@@ -66,7 +67,7 @@ class GameData:
     def update(self, *, section: str, item: str | int, attribute: str, value: Any):
         ...
 
-    def update(self, *, section: str, item: str | int, attribute: str | Any = None, value: Any):
+    def update(self, *, section: str, item: UUID | int, attribute: str | Any = None, value: Any):
         """
         Updates the game data and notifies the observers.
         :param section:
