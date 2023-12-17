@@ -3,6 +3,8 @@ import tkinter.ttk as ttk
 import typing
 
 import config
+from game_data import GameData
+from game_window import GameWindow
 from message_factory import MessageFactory
 
 
@@ -16,7 +18,7 @@ class Lobby(tk.Tk):
     instance.register(lobby.game_data)
     """
 
-    class GameData:
+    class Data:
         """
         Class that holds tkinter variables used for this window.
         """
@@ -73,48 +75,52 @@ class Lobby(tk.Tk):
                 keys = (section, item)
             if keys not in self:
                 return
-            self.select(keys).set(value)
+            if self.select(keys).get() != value:
+                self.select(keys).set(value)
             if section == "misc" and item == "my_id":
                 self.master.set_my_player_id()
 
-    def __init__(self, message_factory: MessageFactory):
+    def __init__(self, message_factory: MessageFactory, game_data: GameData):
         super().__init__()
-        self.game_data: Lobby.GameData = self.GameData(self)
+        self.data: Lobby.Data = self.Data(self)
+        self.game_data = game_data
+        self.game_data.register(self.data)
         self.message_factory = message_factory
         self.tokens_list: list = config.available_tokens
         """ List of available tokens """
-        self.table: tk.Frame = tk.Frame(self)
+        self.table: ttk.Frame = ttk.Frame(self)
         """ Table containing all the elements """
         self.table_elements: list[typing.Any] = self._fill_table_elements()
         """ List of table elements, such as name fields, token comboboxes, etc. """
-        self.buttons: tk.Frame = tk.Frame(self)
+        self.buttons_frame: ttk.Frame = ttk.Frame(self)
         """  Frame containing buttons """  # TODO buttons not implemented
+        self.buttons: list[typing.Any] = self._get_buttons()
         self.table.pack()
-        self.buttons.pack()
+        self.buttons_frame.pack()
 
     def set_my_player_id(self):
-        my_id = self.game_data["misc"]["my_id"].get()
+        my_id = self.data["misc"]["my_id"].get()
         if my_id == -1:
             print("My_id is not set yet.")
             return
         key = ["players", my_id]
         name_entry: tk.Entry = self.table_elements[my_id + 1][0]
         name_entry.configure(state=tk.NORMAL)
-        name_entry.var = self.game_data.select(key + ["name"])
+        name_entry.var = self.data.select(key + ["name"])
         name_entry.var.trace_add("write", self._notify)
         token_combobox: ttk.Combobox = self.table_elements[my_id + 1][1]
         token_combobox.configure(state="readonly")
-        token_combobox.var = self.game_data.select(key + ["token"])
+        token_combobox.var = self.data.select(key + ["token"])
         token_combobox.var.trace_add("write", self._notify)
         ready_checkbox: ttk.Checkbutton = self.table_elements[my_id + 1][2]
         ready_checkbox.configure(state=tk.NORMAL)
-        ready_checkbox.var = self.game_data.select(key + ["ready"])
+        ready_checkbox.var = self.data.select(key + ["ready"])
         ready_checkbox.var.trace_add("write", self._notify)
 
     def _notify(self, name: str, something: str, mode: str):
-        keys = name.split(".")
+        keys: list[str | int] = name.split(".")
         keys[1] = int(keys[1])
-        value = self.game_data.select(keys).get()
+        value = self.data.select(keys).get()
         self.message_factory.send(
             "user_info",
             {"section": keys[0], "item": keys[1], "attribute": keys[2], "value": value}
@@ -132,10 +138,10 @@ class Lobby(tk.Tk):
         for i in range(4):  # next lines are text entries a comboboxes
             table_elements.append(list())  # A line is represented with a list
 
-            player_data = self.game_data["players"][i]
+            player_data = self.data["players"][i]
 
             # Name textbox
-            name_entry = tk.Entry(self.table, width=24, state=tk.DISABLED)
+            name_entry = ttk.Entry(self.table, width=24, state=tk.DISABLED)
             name_entry.configure(textvariable=player_data["name"])
 
             # Token selection combobox
@@ -151,3 +157,14 @@ class Lobby(tk.Tk):
                 table_elements[i + 1].append(v)  # place element to the list
                 table_elements[i + 1][j].grid(column=j, row=i + 1, padx=5, pady=5)  # Place element to the grid
         return table_elements
+
+    def _get_buttons(self):
+        self.buttons_frame.configure(borderwidth=5)
+        start_btn = ttk.Button(self.buttons_frame, text="Start Game", command=self._start_game)
+        buttons = [start_btn]
+        start_btn.pack()
+        return buttons
+
+    def _start_game(self):
+        self.game_window = GameWindow(self.message_factory, self.game_data)
+

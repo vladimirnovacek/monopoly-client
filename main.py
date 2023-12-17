@@ -16,8 +16,7 @@ def start():
     """
     game_data = GameData()
     message_factory = MessageFactory(game_data)
-    root = Lobby(message_factory)
-    game_data.register(root.game_data)
+    root = Lobby(message_factory, game_data)
     root.protocol("WM_DELETE_WINDOW", reactor.stop)
     tksupport.install(root)
     reactor.connectTCP(config.server_address, config.server_port, ClFactory(MessageParser(game_data), message_factory))
