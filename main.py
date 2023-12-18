@@ -5,7 +5,7 @@ import config
 from data_parser import MessageParser
 from client import ClFactory
 from game_data import GameData
-from lobby import Lobby
+from game_window import GameWindow
 from message_factory import MessageFactory
 
 
@@ -16,9 +16,9 @@ def start():
     """
     game_data = GameData()
     message_factory = MessageFactory(game_data)
-    root = Lobby(message_factory, game_data)
-    root.protocol("WM_DELETE_WINDOW", reactor.stop)
-    tksupport.install(root)
+    game_window = GameWindow(message_factory, game_data)
+    game_window.protocol("WM_DELETE_WINDOW", reactor.stop)
+    tksupport.install(game_window)
     reactor.connectTCP(config.server_address, config.server_port, ClFactory(MessageParser(game_data), message_factory))
     reactor.run()
 

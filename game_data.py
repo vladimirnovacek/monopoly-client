@@ -77,7 +77,7 @@ class GameData:
         :return:
         """
         for observer in self.observers:
-            observer.update(section=section, item=item, attribute=attribute, value=value)
+            observer.update_value(section=section, item=item, attribute=attribute, value=value)
         if attribute is not None:
             self[section][item][attribute] = value
         else:

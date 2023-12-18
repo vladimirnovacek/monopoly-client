@@ -14,6 +14,7 @@ class LeftMenu(ttk.Frame):
     def __init__(self, master: GameWindow) -> None:
         super().__init__(master)
         self.frames: list[ttk.Frame] = [ttk.Frame(self) for _ in range(4)]
+        self.data: dict = dict()
         self.cash_vars = [tk.StringVar(self) for _ in range(4)]
         self.name_labels = [tk.Label(self.frames[i]) for i in range(4)]
         self.cash_labels = [

@@ -4,11 +4,11 @@ import typing
 
 import config
 from game_data import GameData
-from game_window import GameWindow
+from interfaces import Observer
 from message_factory import MessageFactory
 
 
-class Lobby(tk.Tk):
+class Lobby(tk.Toplevel, Observer):
     """
     Tkinter window lobby. Shows connected players and allows to player to change
     their name and token. When all players check the Ready checkbox, game can
@@ -80,11 +80,14 @@ class Lobby(tk.Tk):
             if section == "misc" and item == "my_id":
                 self.master.set_my_player_id()
 
-    def __init__(self, message_factory: MessageFactory, game_data: GameData):
-        super().__init__()
+
+    master: tk.Tk
+
+    def __init__(self, master: tk.Tk, message_factory: MessageFactory, game_data: GameData):
+        super().__init__(master=master)
         self.data: Lobby.Data = self.Data(self)
         self.game_data = game_data
-        self.game_data.register(self.data)
+        self.game_data.register(self)
         self.message_factory = message_factory
         self.tokens_list: list = config.available_tokens
         """ List of available tokens """
@@ -97,6 +100,9 @@ class Lobby(tk.Tk):
         self.buttons: list[typing.Any] = self._get_buttons()
         self.table.pack()
         self.buttons_frame.pack()
+
+    def update_value(self, section, item, attribute, value):
+        self.data.update(section=section, item=item, attribute=attribute, value=value)
 
     def set_my_player_id(self):
         my_id = self.data["misc"]["my_id"].get()
@@ -166,5 +172,6 @@ class Lobby(tk.Tk):
         return buttons
 
     def _start_game(self):
-        self.game_window = GameWindow(self.message_factory, self.game_data)
+        self.master.deiconify()
+        self.destroy()
 

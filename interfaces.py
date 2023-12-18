@@ -1,8 +1,11 @@
+
+from abc import ABC, abstractmethod
 from typing import Protocol
 
 
-class Observer(Protocol):
-    def update(self, section, item, attribute, value):
+class Observer(ABC):
+    @abstractmethod
+    def update_value(self, section, item, attribute, value):
         ...
 
 
