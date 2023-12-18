@@ -25,6 +25,7 @@ class GameWindow(tk.Tk, Observer):
         self.game_board: GameBoard = GameBoard(self)
         self.right_menu: RightMenu = RightMenu(self)
         self.left_menu: LeftMenu = LeftMenu(self)
+        game_data.register(self.left_menu)
 
         self.left_menu.pack(side="left", fill="y")
         self.game_board.pack(side="left", fill="both", expand=True)
