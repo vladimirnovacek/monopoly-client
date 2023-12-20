@@ -22,6 +22,7 @@ class Player(TypedDict, total=False):
 
 
 class Misc(TypedDict, total=False):
+    state: str
     on_turn: int
     last_roll: tuple
     my_id: int
@@ -35,7 +36,7 @@ class GameData:
     """
 
     def __init__(self):
-        self.observers: list[Observer] = []
+        self.observers: list[Observer] = []  # TODO could be a set
         self.fields: dict[int, Field] = {}
         self.players: list[Player] = [
             {"player_id": 0, "name": "", "token": "", "cash": 0, "field_id": -1, "ready": False},
@@ -58,6 +59,9 @@ class GameData:
         :return:
         """
         self.observers.append(observer)
+
+    def unregister(self, observer: Observer):
+        self.observers.remove(observer)
 
     @overload
     def update(self, *, section: str, item: str | int, value: Any):

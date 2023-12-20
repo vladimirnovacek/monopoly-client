@@ -19,6 +19,7 @@ class Client(Protocol):
 
     def send(self, data: bytes):
         print(f"Sending data: {pickle.loads(data)}")
+        # noinspection PyArgumentList
         self.transport.write(data)
 
 

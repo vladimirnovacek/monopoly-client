@@ -18,7 +18,8 @@ class GameWindow(tk.Tk, Observer):
     def __init__(self, message_factory: MessageFactory, game_data: GameData) -> None:
         super().__init__()
         self.message_factory: MessageFactory = message_factory
-        game_data.register(self)
+        self.game_data: GameData = game_data
+        self.game_data.register(self)
 
         self.lobby: tk.Toplevel = Lobby(self, message_factory, game_data)
 
@@ -30,8 +31,9 @@ class GameWindow(tk.Tk, Observer):
         self.left_menu.pack(side="left", fill="y")
         self.game_board.pack(side="left", fill="both", expand=True)
         self.right_menu.pack(side="right", fill="y")
-        self.withdraw()
 
     def update_value(self, section, item, attribute, value):
-        pass
-
+        if (section, item, value) == ("misc", "state", "pregame"):
+            self.withdraw()
+        if (section, item) == ("misc", "state") and value != "pregame":
+            self.deiconify()

@@ -123,7 +123,11 @@ class Lobby(tk.Toplevel, Observer):
         self.buttons: list[typing.Any] = self._get_buttons()
         self.table.pack()
         self.buttons_frame.pack()
-        self.protocol("WM_DELETE_WINDOW", self._destroy)
+        self.protocol("WM_DELETE_WINDOW", self._close_window)
+
+    def destroy(self):
+        self.game_data.unregister(self)
+        super().destroy()
 
     def update_value(self, *, section: str, item: str | int, attribute: str | None = None, value: typing.Any) -> None:
         """
@@ -137,6 +141,10 @@ class Lobby(tk.Toplevel, Observer):
         :param value: Value that will be stored into the variable
         :type value: Any
         """
+        if (section, item, value) == ("misc", "state", "pregame"):
+            self.deiconify()
+        if (section, item) == ("misc", "state") and value != "pregame":
+            self.destroy()
         self.data.update(section=section, item=item, attribute=attribute, value=value)
 
     def set_my_player_id(self) -> None:
@@ -162,11 +170,12 @@ class Lobby(tk.Toplevel, Observer):
         ready_checkbox.var = self.data.select(key + ["ready"])
         ready_checkbox.var.trace_add("write", self._notify)
 
-    def _destroy(self) -> None:
+    def _close_window(self) -> None:
         """
         Ends the entire app when this window is closed.
         """
         self.master.destroy()
+        # noinspection PyUnresolvedReferences
         reactor.stop()
 
     def _fill_table_elements(self) -> list[list[tk.Widget]]:
@@ -220,6 +229,7 @@ class Lobby(tk.Toplevel, Observer):
         start_btn.pack()
         return buttons
 
+    # noinspection PyUnusedLocal
     def _notify(self, name: str, something: str, mode: str) -> None:
         """
         Sends a message to the server when the value of a tkinter variable specified by the name attribute changes.

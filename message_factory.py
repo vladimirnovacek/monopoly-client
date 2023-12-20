@@ -24,6 +24,8 @@ class MessageFactory:
         }
         return pickle.dumps(message)
 
-    def send(self, action: str, parameters: dict[str, Any]):
+    def send(self, action: str, parameters: dict[str, Any] = None):
+        if parameters is None:
+            parameters = {}
         message = self.get(action, parameters)
         self.network.send(message)

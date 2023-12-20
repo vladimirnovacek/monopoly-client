@@ -39,4 +39,5 @@ class MessageParser:
         :param message: The message to send.
         :return:
         """
+        # noinspection PyUnresolvedReferences
         self.network.send(pickle.dumps(message))
