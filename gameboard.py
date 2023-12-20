@@ -18,20 +18,6 @@ if typing.TYPE_CHECKING:
 
 class GameBoard(tk.Canvas):
 
-    FIELD_COORDINATES: typing.Final[list[tuple[int, int]]] = [
-        (40, 40), (105, 25), (153, 25), (202, 25), (251, 25),
-        (299, 25), (348, 25), (397, 25), (445, 25), (494, 25),
-        (580, 25), (574, 105), (574, 153), (574, 202), (574, 251),
-        (574, 299), (574, 348), (574, 397), (574, 445), (574, 494),
-        (559, 559), (494, 574), (445, 574), (397, 574), (348, 574),
-        (299, 574), (251, 574), (202, 574), (153, 574), (105, 574),
-        (40, 559), (25, 494), (25, 445), (25, 397), (25, 348),
-        (25, 299), (25, 251), (25, 202), (25, 153), (25, 105),
-        (547, 52)
-    ]
-    """ List of coordinates of fields on the gameboard. Coordinates are of the
-    center of the fields. Last tuple is coordinate of a jail"""
-
     def __init__(self,
                  master: GameWindow = None,
                  width=config.board_size["width"],
@@ -52,6 +38,7 @@ class GameBoard(tk.Canvas):
             "cc": self.create_image(
                 499, 499, anchor=tk.SE, image=self.images["cc"])
         }
+        self.field_coordinates = config.field_coordinates
 
         # self.dice: Dice = Dice()  # kostky
         # self.dice.draw(self)  # immediately draw the dice on board
@@ -63,4 +50,4 @@ class GameBoard(tk.Canvas):
         # }
 
     def get_field_coordinate(self, field: int) -> tuple[int, int]:
-        return self.FIELD_COORDINATES[field]
+        return self.field_coordinates[field]
