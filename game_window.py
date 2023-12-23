@@ -33,7 +33,7 @@ class GameWindow(tk.Tk, Observer):
         self.right_menu.pack(side="right", fill="y")
 
     def update_value(self, section, item, attribute, value):
-        if (section, item, value) == ("misc", "state", "pregame"):
-            self.withdraw()
-        if (section, item) == ("misc", "state") and value != "pregame":
+        if (section, item) == ("events", "game_started"):
             self.deiconify()
+        elif (section, item, value) == ("misc", "state", "pregame"):
+            self.withdraw()

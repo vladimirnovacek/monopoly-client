@@ -141,8 +141,6 @@ class Lobby(tk.Toplevel, Observer):
         :param value: Value that will be stored into the variable
         :type value: Any
         """
-        if (section, item, value) == ("misc", "state", "pregame"):
-            self.deiconify()
         if (section, item) == ("misc", "state") and value != "pregame":
             self.destroy()
         self.data.update(section=section, item=item, attribute=attribute, value=value)

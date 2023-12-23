@@ -82,6 +82,8 @@ class GameData:
         """
         for observer in self.observers:
             observer.update_value(section=section, item=item, attribute=attribute, value=value)
+        if section == "events":
+            return
         if attribute is not None:
             self[section][item][attribute] = value
         else:
@@ -89,14 +91,3 @@ class GameData:
 
     def get_uuid(self):
         return self.misc["my_uuid"]
-
-'''
-{"jmeno":
-    {
-        "player_id": 0,
-        "name": "jmeno",
-        "token": "car",
-        "
-    }
-}
-'''
