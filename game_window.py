@@ -24,6 +24,7 @@ class GameWindow(tk.Tk, Observer):
         self.lobby: tk.Toplevel = Lobby(self, message_factory, game_data)
 
         self.game_board: GameBoard = GameBoard(self)
+        game_data.register(self.game_board)
         self.right_menu: RightMenu = RightMenu(self)
         self.left_menu: LeftMenu = LeftMenu(self)
         game_data.register(self.left_menu)

@@ -9,12 +9,14 @@ from PIL import Image, ImageTk
 
 import config
 from interfaces import Observer
+from tokens import Token
 
 if typing.TYPE_CHECKING:
     from game_window import GameWindow
 
 
 class GameBoard(tk.Canvas, Observer):
+    master: GameWindow
 
     def __init__(
             self,
@@ -29,7 +31,12 @@ class GameBoard(tk.Canvas, Observer):
             "cc": ImageTk.PhotoImage(Image.open(path.join(config.path_images, "cc.png")))
         }
         self.ids = {
-            key: self.create_image(0, 0, anchor=tk.NW, image=image) for key, image in self.images.items()
+            "background": self.create_image(
+                0, 0, anchor=tk.NW, image=self.images["background"]),
+            "chance": self.create_image(
+                100, 100, anchor=tk.NW, image=self.images["chance"]),
+            "cc": self.create_image(
+                499, 499, anchor=tk.SE, image=self.images["cc"])
         }
         self.tokens = {}
         self.field_coordinates = config.field_coordinates
@@ -44,8 +51,8 @@ class GameBoard(tk.Canvas, Observer):
         # }
 
     def update_value(self, section, item, attribute, value):
-        pass
-        # if (section, item, value) == ("misc", "state", "begin_turn")
+        if (section, attribute) == ("players", "token") and value != "":
+            self.tokens[item] = Token(self, item, value)
 
     def get_field_coordinate(self, field: int) -> tuple[int, int]:
         return self.field_coordinates[field]
