@@ -3,41 +3,35 @@ from __future__ import annotations
 
 import tkinter as tk
 import typing
+from os import path
+
+from PIL import Image, ImageTk
 
 import config
-# from GUI.card import Card, PropertyCard
-# from GUI.chance_cc_card import ChanceCcCard
-# from GUI.dice import Dice
-# from GUI.railroad_card import RailroadCard
-# from GUI.street_cards import StreetCard
-# from GUI.utility_card import UtilityCard
+from interfaces import Observer
 
 if typing.TYPE_CHECKING:
     from game_window import GameWindow
 
 
-class GameBoard(tk.Canvas):
+class GameBoard(tk.Canvas, Observer):
 
-    def __init__(self,
-                 master: GameWindow = None,
-                 width=config.board_size["width"],
-                 height=config.board_size["height"],
+    def __init__(
+            self,
+            master: GameWindow = None,
+            width=config.board_size["width"],
+            height=config.board_size["height"],
     ) -> None:
         super().__init__(master, width=width, height=height)
-        self.master: GameWindow = master
         self.images = {
-            "background": tk.PhotoImage(master=self, file=config.path_board_image),
-            "chance": tk.PhotoImage(master=self, file=config.path_chance_image),
-            "cc": tk.PhotoImage(master=self, file=config.path_cc_image)
+            "background": ImageTk.PhotoImage(Image.open(path.join(config.path_images, "board.png"))),
+            "chance": ImageTk.PhotoImage(Image.open(path.join(config.path_images, "chance.png"))),
+            "cc": ImageTk.PhotoImage(Image.open(path.join(config.path_images, "cc.png")))
         }
         self.ids = {
-            "background": self.create_image(
-                0, 0, anchor=tk.NW, image=self.images["background"]),
-            "chance": self.create_image(
-                100, 100, anchor=tk.NW, image=self.images["chance"]),
-            "cc": self.create_image(
-                499, 499, anchor=tk.SE, image=self.images["cc"])
+            key: self.create_image(0, 0, anchor=tk.NW, image=image) for key, image in self.images.items()
         }
+        self.tokens = {}
         self.field_coordinates = config.field_coordinates
 
         # self.dice: Dice = Dice()  # kostky
@@ -48,6 +42,10 @@ class GameBoard(tk.Canvas):
         #     "railroad": RailroadCard(self),
         #     "utility": UtilityCard(self)
         # }
+
+    def update_value(self, section, item, attribute, value):
+        pass
+        # if (section, item, value) == ("misc", "state", "begin_turn")
 
     def get_field_coordinate(self, field: int) -> tuple[int, int]:
         return self.field_coordinates[field]
