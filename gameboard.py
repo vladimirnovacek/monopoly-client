@@ -8,14 +8,15 @@ from os import path
 from PIL import Image, ImageTk
 
 import config
-from interfaces import Observer
+from dice import Dice
+from interfaces import Updatable, Conditions
 from tokens import Token
 
 if typing.TYPE_CHECKING:
     from game_window import GameWindow
 
 
-class GameBoard(tk.Canvas, Observer):
+class GameBoard(tk.Canvas, Updatable):
     master: GameWindow
 
     def __init__(
@@ -38,17 +39,26 @@ class GameBoard(tk.Canvas, Observer):
             "cc": self.create_image(
                 499, 499, anchor=tk.SE, image=self.images["cc"])
         }
-        self.tokens = {}
+        self.tokens: dict[int, Token] = {}
+        self.dice: Dice = Dice(self)
+        self.dice.draw()
+
         self.field_coordinates = config.field_coordinates
 
-        # self.dice: Dice = Dice()  # kostky
-        # self.dice.draw(self)  # immediately draw the dice on board
         # self.card: dict[str, Card | PropertyCard] = {
         #     "chance_cc": ChanceCcCard(self),
         #     "street": StreetCard(self),
         #     "railroad": RailroadCard(self),
         #     "utility": UtilityCard(self)
         # }
+
+
+    def get_conditions(self):
+        conditions = {
+            Conditions(self.update_value, section="players", attribute="token"),
+        }
+        conditions.update(super().get_conditions())
+        return conditions
 
     def update_value(self, section, item, attribute, value):
         if (section, attribute) == ("players", "token") and value != "":

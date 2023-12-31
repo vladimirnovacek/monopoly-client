@@ -5,12 +5,13 @@ import typing
 from twisted.internet import reactor
 
 import config
-from game_data import GameData
-from interfaces import Observer
+from interfaces import Updatable, Conditions
 from message_factory import MessageFactory
 
+if typing.TYPE_CHECKING:
+    from game_window import GameWindow
 
-class Lobby(tk.Toplevel, Observer):
+class Lobby(tk.Toplevel, Updatable):
     """
     Tkinter window lobby. Shows connected players and allows to player to change
     their name and token. When all players check the Ready checkbox, game can
@@ -101,15 +102,13 @@ class Lobby(tk.Toplevel, Observer):
                 self.master.set_my_player_id()
 
 
-    master: tk.Tk
+    master: "GameWindow"
 
-    def __init__(self, master: tk.Tk, message_factory: MessageFactory, game_data: GameData):
+    def __init__(self, master: "GameWindow", message_factory: MessageFactory):
         super().__init__(master=master)
         self.data: Lobby.Data = self.Data(self)
         """ Class contains tkinter variables for this window. """
-        self.game_data: GameData = game_data
-        """ Link to game data """
-        self.game_data.register(self)
+
         self.message_factory = message_factory
         """ Link to a message factory """
         self.tokens_list: list = config.available_tokens
@@ -125,25 +124,18 @@ class Lobby(tk.Toplevel, Observer):
         self.buttons_frame.pack()
         self.protocol("WM_DELETE_WINDOW", self._close_window)
 
-    def destroy(self):
-        self.game_data.unregister(self)
-        super().destroy()
-
-    def update_value(self, *, section: str, item: str | int, attribute: str | None = None, value: typing.Any) -> None:
-        """
-        Updates a value of a variable specified by the method attributes.
-        :param section: Section is one of ("fields", "players", "misc")
-        :type section: str
-        :param item:
-        :type item: str | int
-        :param attribute: With section == "misc" the attribute = None
-        :type attribute: str | None
-        :param value: Value that will be stored into the variable
-        :type value: Any
-        """
-        if (section, item) == ("misc", "state") and value != "pregame":
-            self.destroy()
-        self.data.update(section=section, item=item, attribute=attribute, value=value)
+    def get_conditions(self) -> set[Conditions]:
+        conditions = {
+            Conditions(self.destroy, False, section="misc", item="state", not__value="pregame"),
+            Conditions(self.data.update, section="players", attribute="player_id"),
+            Conditions(self.data.update, section="players", attribute="name"),
+            Conditions(self.data.update, section="players", attribute="token"),
+            Conditions(self.data.update, section="players", attribute="ready"),
+            Conditions(self.data.update, section="misc", item="my_id"),
+            Conditions(self.data.update, section="misc", item="state"),
+        }
+        conditions.update(super().get_conditions())
+        return conditions
 
     def set_my_player_id(self) -> None:
         """

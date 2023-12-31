@@ -5,13 +5,13 @@ import tkinter as tk
 import tkinter.ttk as ttk
 import typing
 
-from interfaces import Observer
+from interfaces import Updatable, Conditions
 
 if typing.TYPE_CHECKING:
     from game_window import GameWindow
 
 
-class LeftMenu(ttk.Frame, Observer):
+class LeftMenu(ttk.Frame, Updatable):
 
     def __init__(self, master: GameWindow) -> None:
         super().__init__(master)
@@ -37,6 +37,14 @@ class LeftMenu(ttk.Frame, Observer):
         for key in keys:
             item = item[key]
         return item
+
+    def get_conditions(self) -> set[Conditions]:
+        conditions = {
+            Conditions(self.update_value, section="players", attribute="name"),
+            Conditions(self.update_value, section="players", attribute="cash"),
+        }
+        conditions.update(super().get_conditions())
+        return conditions
 
     def update_value(self, *, section, item, attribute = None, value):
         keys = (section, item, attribute) if attribute else (section, item)

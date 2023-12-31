@@ -2,8 +2,10 @@
 import tkinter as tk
 from tkinter import ttk
 
+from interfaces import Updatable, Conditions
 
-class RightMenu(tk.Frame):
+
+class RightMenu(tk.Frame, Updatable):
 
     def __init__(self, master: tk.Tk) -> None:
         super().__init__(master)
@@ -16,6 +18,16 @@ class RightMenu(tk.Frame):
         for button in self.buttons.values():
             button.configure(state=tk.DISABLED)
             button.pack(side=tk.TOP)
+
+    def get_conditions(self) -> set[Conditions]:
+        conditions = {
+            Conditions(self.update_value, section="events", item="possible_actions")
+        }
+        conditions.update(super().get_conditions())
+        return conditions
+
+    def update_value(self, section, item, attribute, value):
+        pass
 
     def process_actions(self, data: set[str]):
         for button_name, button in self.buttons.items():
