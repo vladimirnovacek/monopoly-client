@@ -52,6 +52,14 @@ class GameData:
     def __repr__(self):
         return f"{self.__class__.__name__}({self.__dict__})"
 
+    @property
+    def on_turn(self) -> bool:
+        if "on_turn" not in self.misc or "my_id" not in self.misc:
+            return False
+        if self.misc["on_turn"] == self.misc["my_id"]:
+            return True
+        return False
+
     def register(self, observer: Observer):
         """
         Registers an observer. The observer will be notified when the game data changes.
