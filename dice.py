@@ -2,6 +2,7 @@
 import os.path
 import random
 import typing
+
 from PIL import ImageTk, Image
 
 import config
@@ -79,9 +80,9 @@ class Dice(Updatable):
         ]
         self.dice = [self.Die(master, location) for location in config.dice_location]
 
-        self._update_conditions = {
-            ("events", "dice_roll", "N/A"),
-        }
+    @property
+    def animation_over(self):
+        return all(die.animation_over for die in self.dice)
 
     def draw(self) -> None:
         for die in self.dice:

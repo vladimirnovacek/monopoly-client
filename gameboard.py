@@ -56,7 +56,8 @@ class GameBoard(tk.Canvas, Updatable):
     def get_conditions(self):
         conditions = {
             Conditions(self.update_value, section="players", attribute="token"),
-            Conditions(self._roll, section="misc", item="last_roll")
+            Conditions(self._roll, section="misc", item="last_roll"),
+            Conditions(self._move, section="players", attribute="field")
         }
         conditions.update(super().get_conditions())
         return conditions
@@ -70,3 +71,7 @@ class GameBoard(tk.Canvas, Updatable):
 
     def _roll(self, section, item, attribute, value):
         self.dice.roll(value)
+
+    def _move(self, section, item, attribute, value):
+        token = self.tokens[item]
+        token.move(value)
