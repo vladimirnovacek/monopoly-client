@@ -56,6 +56,7 @@ class GameBoard(tk.Canvas, Updatable):
     def get_conditions(self):
         conditions = {
             Conditions(self.update_value, section="players", attribute="token"),
+            Conditions(self._roll, section="misc", item="last_roll")
         }
         conditions.update(super().get_conditions())
         return conditions
@@ -66,3 +67,6 @@ class GameBoard(tk.Canvas, Updatable):
 
     def get_field_coordinate(self, field: int) -> tuple[int, int]:
         return self.field_coordinates[field]
+
+    def _roll(self, section, item, attribute, value):
+        self.dice.roll(value)
