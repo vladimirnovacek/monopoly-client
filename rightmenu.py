@@ -1,15 +1,19 @@
 
 import tkinter as tk
+import typing
 from tkinter import ttk
 
 from interfaces import Updatable, Conditions
 
+if typing.TYPE_CHECKING:
+    from game_window import GameWindow
+
 
 class RightMenu(tk.Frame, Updatable):
 
-    def __init__(self, master: tk.Tk) -> None:
+    def __init__(self, master: "GameWindow") -> None:
         super().__init__(master)
-        self.master: tk.Tk = master
+        self.master: "GameWindow" = master
         self.buttons: dict[str, ttk.Button] = {
             "roll": ttk.Button(self, text="Roll dice", command=self.roll),
             "move": ttk.Button(self, text="Move piece", command=self.move),
@@ -27,7 +31,15 @@ class RightMenu(tk.Frame, Updatable):
         return conditions
 
     def update_value(self, section, item, attribute, value):
-        pass
+        if section == "events" and item == "possible_actions":
+            print(f"{self.master.game_data.on_turn=}")
+            if self.master.game_data.on_turn:
+                for name, button in self.buttons.items():
+                    if name in value:
+                        print("Enabling button")
+                        button.configure(state=tk.NORMAL)
+                    else:
+                        button.configure(state=tk.DISABLED)
 
     def process_actions(self, data: set[str]):
         for button_name, button in self.buttons.items():
@@ -37,7 +49,7 @@ class RightMenu(tk.Frame, Updatable):
                 button.configure(state=tk.DISABLED)
 
     def roll(self):
-        pass
+        self.master.message_factory.send("roll")
 
     def move(self):
         pass
