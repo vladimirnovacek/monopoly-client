@@ -73,5 +73,7 @@ class GameBoard(tk.Canvas, Updatable):
         self.dice.roll(value)
 
     def _move(self, section, item, attribute, value):
+        if not self.dice.animation_over:
+            self.wait_variable(self.dice.animation_over_var)
         token = self.tokens[item]
         token.move(value)

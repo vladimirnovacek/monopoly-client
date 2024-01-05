@@ -2,6 +2,7 @@
 import os.path
 import random
 import typing
+from tkinter import BooleanVar
 
 from PIL import ImageTk, Image
 
@@ -22,6 +23,7 @@ class Dice(Updatable):
             self.canvas_id = -1
             self.location = location
             self.animation_over = True
+            self.animation_over_var = BooleanVar()
             self.displayed_value = 6
 
         def draw(self) -> None:
@@ -70,6 +72,7 @@ class Dice(Updatable):
             else:
                 self.display_value(value)
                 self.animation_over = True
+                self.animation_over_var.set(True)
 
 
     def __init__(self, master: "GameBoard") -> None:
@@ -79,6 +82,18 @@ class Dice(Updatable):
             ) for i in range(1, 7)
         ]
         self.dice = [self.Die(master, location) for location in config.dice_location]
+        self._animation_over_trace()
+        self.animation_over_var = BooleanVar()
+
+    def _animation_over_trace(self):
+        for die in self.dice:
+            die.animation_over_var.trace_add("write", self._animation_over_callback)
+
+    def _animation_over_callback(self, *args):
+        if all(die.animation_over_var.get() for die in self.dice):
+            self.animation_over_var.set(True)
+            for die in self.dice:
+                die.animation_over_var.set(False)
 
     @property
     def animation_over(self):
