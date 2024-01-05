@@ -24,9 +24,9 @@ class MessageParser:
         self.network: Protocol | None = None  # Assigned after successful connection
 
     def _message_priority(self, message):
-        priority = {"roll": 100, "move": 80}
+        priority = {"roll": 0, "move": 10, "on_turn": 20}
         item = message["item"]
-        return priority.get(item, 0)
+        return priority.get(item, 999)
 
     def parse(self, data: bytes):
         """
