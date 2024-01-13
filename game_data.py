@@ -8,8 +8,6 @@ from interfaces import Observer
 class Field(TypedDict, total=False):
     field_id: int
     owner: int
-    houses: int
-    mortgage: bool
 
 
 class Player(TypedDict, total=False):
@@ -37,7 +35,7 @@ class GameData:
 
     def __init__(self):
         self.observers: list[Observer] = []  # TODO could be a set
-        self.fields: dict[int, Field] = {}
+        self.fields: list[Field] = []
         self.players: list[Player] = [
             {"player_id": 0, "name": "", "token": "", "cash": 0, "field_id": -1, "ready": False},
             {"player_id": 1, "name": "", "token": "", "cash": 0, "field_id": -1, "ready": False},
@@ -92,7 +90,9 @@ class GameData:
             observer.update_value(section=section, item=item, attribute=attribute, value=value)
         if section == "events":
             return
-        if attribute is not None:
+        if (section, item, attribute) == ("fields", -1, "lenght"):
+            self.fields = [{} for _ in range(value)]
+        elif attribute is not None:
             self[section][item][attribute] = value
         else:
             self[section][item] = value

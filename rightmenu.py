@@ -32,11 +32,9 @@ class RightMenu(tk.Frame, Updatable):
 
     def update_value(self, section, item, attribute, value):
         if section == "events" and item == "possible_actions":
-            print(f"{self.master.game_data.on_turn=}")
             if self.master.game_data.on_turn:
                 for name, button in self.buttons.items():
                     if name in value:
-                        print("Enabling button")
                         button.configure(state=tk.NORMAL)
                     else:
                         button.configure(state=tk.DISABLED)

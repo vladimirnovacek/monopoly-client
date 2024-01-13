@@ -24,7 +24,12 @@ class MessageParser:
         self.network: Protocol | None = None  # Assigned after successful connection
 
     def _message_priority(self, message):
-        priority = {"roll": 0, "move": 10, "on_turn": 20}
+        priority = {
+            -1: 0, # section=fields, item -1 marks board info(e.g. board lenght)
+            "roll": 10,
+            "move": 20,
+            "on_turn": 30
+        }
         item = message["item"]
         return priority.get(item, 999)
 
