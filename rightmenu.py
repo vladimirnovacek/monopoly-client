@@ -56,4 +56,4 @@ class RightMenu(tk.Frame, Updatable):
         pass
 
     def end_turn(self):
-        pass
+        self.master.message_factory.send("end_turn")
