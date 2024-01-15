@@ -25,13 +25,13 @@ class RightMenu(tk.Frame, Updatable):
 
     def get_conditions(self) -> set[Conditions]:
         conditions = {
-            Conditions(self.update_value, section="events", item="possible_actions")
+            Conditions(self.update_value, section="players", attribute="possible_actions")
         }
         conditions.update(super().get_conditions())
         return conditions
 
     def update_value(self, section, item, attribute, value):
-        if section == "events" and item == "possible_actions":
+        if section == "players" and attribute == "possible_actions":
             if self.master.game_data.on_turn:
                 for name, button in self.buttons.items():
                     if name in value:
