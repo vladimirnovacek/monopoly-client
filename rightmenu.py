@@ -16,7 +16,6 @@ class RightMenu(tk.Frame, Updatable):
         self.master: "GameWindow" = master
         self.buttons: dict[str, ttk.Button] = {
             "roll": ttk.Button(self, text="Roll dice", command=self.roll),
-            "move": ttk.Button(self, text="Move piece", command=self.move),
             "end_turn": ttk.Button(self, text="End turn", command=self.end_turn)
         }
         for button in self.buttons.values():
@@ -48,9 +47,6 @@ class RightMenu(tk.Frame, Updatable):
 
     def roll(self):
         self.master.message_factory.send("roll")
-
-    def move(self):
-        pass
 
     def buy(self):
         pass
