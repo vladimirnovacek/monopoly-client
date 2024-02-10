@@ -234,6 +234,8 @@ class Lobby(tk.Toplevel, Updatable):
         keys[1] = int(keys[1])
         value = self.data.select(keys).get()
         self.message_factory.send(
-            "user_info",
-            {"section": keys[0], "item": keys[1], "attribute": keys[2], "value": value}
+            "update_player",
+            {  #"section": keys[0], "item": keys[1],
+                "attribute": keys[2], "value": value
+            }
         )
