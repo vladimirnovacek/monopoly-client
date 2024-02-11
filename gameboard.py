@@ -26,6 +26,7 @@ class GameBoard(tk.Canvas, Updatable):
             height=config.board_size["height"],
     ) -> None:
         super().__init__(master, width=width, height=height)
+        self.configure(relief="solid", borderwidth=2)
         self.images = {
             "background": ImageTk.PhotoImage(Image.open(path.join(config.path_images, "board.png"))),
             "chance": ImageTk.PhotoImage(Image.open(path.join(config.path_images, "chance.png"))),
@@ -40,8 +41,8 @@ class GameBoard(tk.Canvas, Updatable):
                 499, 499, anchor=tk.SE, image=self.images["cc"])
         }
         self.tokens: dict[int, Token] = {}
-        self.dice: Dice = Dice(self)
-        self.dice.draw()
+        # self.dice: Dice = Dice(self)
+        # self.dice.draw()
 
         self.field_coordinates = config.field_coordinates
 

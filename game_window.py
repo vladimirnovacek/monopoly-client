@@ -2,37 +2,46 @@
 from __future__ import annotations
 
 import tkinter as tk
+from tkinter import ttk
+from PIL import ImageTk
 
 from interfaces import Updatable, Conditions, Observer
 from gameboard import GameBoard
-from leftmenu import LeftMenu
-from lobby import Lobby
-from rightmenu import RightMenu
 
 from game_data import GameData
 from message_factory import MessageFactory
+from rightmenu import RightMenu
 
 
 class GameWindow(tk.Tk, Observer, Updatable):
 
     def __init__(self, message_factory: MessageFactory, game_data: GameData) -> None:
         super().__init__()
+        self.geometry("1280x720")
+        self.title("Monopoly")
+        # self.resizable(False, False)
         self.message_factory: MessageFactory = message_factory
         self.game_data: GameData = game_data
         self.game_data.register(self)
-
-        self.lobby: Lobby = Lobby(self, message_factory)
+        self.tokens: list[str] = [
+            "resources/tokens/car.png",
+            "resources/tokens/hat.png",
+            "resources/tokens/thimble.png",
+            "resources/tokens/wheelbarrow.png",
+        ]
+        self.images: dict[str, ImageTk.PhotoImage] = {
+            "board": ImageTk.PhotoImage(file="resources/board.png"),
+        }
 
         self.game_board: GameBoard = GameBoard(self)
-        self.right_menu: RightMenu = RightMenu(self)
-        self.left_menu: LeftMenu = LeftMenu(self)
+        self.game_board.grid(row=0, column=0, padx=60, pady=60, sticky="nsew")
 
-        self.left_menu.pack(side="left", fill="y")
-        self.game_board.pack(side="left", fill="both", expand=True)
-        self.right_menu.pack(side="right", fill="y")
+        self.right_menu = RightMenu(self, padding=10)
+        self.right_menu.grid(row=0, column=1, sticky="nsew")
+        self.grid_columnconfigure(1, weight=1)
 
-        self.subclasses: set[Updatable] = {self.lobby, self.left_menu, self.game_board, self.right_menu}
-        self._conditions = self.get_conditions()
+    def draw_lobby(self):
+        pass
 
     def get_conditions(self) -> set[Conditions]:
         conditions = {
