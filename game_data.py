@@ -2,10 +2,8 @@
 from typing import TypedDict, Any, overload
 from uuid import UUID
 
-from interfaces import Observer
 
-
-class Field(TypedDict, total=False):
+class Field(TypedDict):
     field_id: int
     owner: int
 
@@ -69,16 +67,21 @@ class GameData:
         :param value:
         :return:
         """
-        for observer in self.observers:
-            observer.update_value(section=section, item=item, attribute=attribute, value=value)
-        if section == "events":
-            return
         if (section, item, attribute) == ("fields", -1, "lenght"):
-            self.fields = [{} for _ in range(value)]
-        elif attribute is not None:
+            return
+        if attribute is not None:
+            if item not in self[section]:
+                self[section][item] = {}
             self[section][item][attribute] = value
         else:
             self[section][item] = value
 
-    def get_uuid(self):
+    def get_id(self) -> int:
+        if "my_id" not in self.misc:
+            return -1
+        return self.misc["my_id"]
+
+    def get_uuid(self) -> UUID | None:
+        if "my_uuid" not in self.misc:
+            return None
         return self.misc["my_uuid"]
