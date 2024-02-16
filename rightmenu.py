@@ -9,6 +9,78 @@ if typing.TYPE_CHECKING:
     from game_window import GameWindow
 
 
+class PlayerFrame(ttk.Frame):
+    def __init__(self, master, player_id: int, *args, **kwargs) -> None:
+        super().__init__(master, *args, **kwargs)
+        self.player_id: int = player_id
+        self.root: GameWindow = self.winfo_toplevel()
+        self.name = ttk.Entry(self, justify=tk.CENTER)
+        self.name.insert(0, f"Player {player_id + 1}")
+        self.name.configure(state="disabled")
+        self.cash = ttk.Label(self, text="0", anchor="center")
+        self.left_arrow = ttk.Button(
+            self,
+            image=self.root.images["left_arrow"],
+            command=self.left_arrow_click,
+            style="Flat.TButton",
+        )
+        self.selected_token: int | None = None
+        self.token = ttk.Label(self, image=self.root.not_selected_token, anchor="center")
+        ttk.Style().configure("Flat.TButton", padding=0, relief="flat")
+        self.right_arrow = ttk.Button(
+            self,
+            image=self.root.images["right_arrow"],
+            command=self.right_arrow_click,
+            style="Flat.TButton",
+        )
+
+    def draw(self, arrows: bool = True):
+        self.grid_rowconfigure((0, 1, 2), weight=1)
+        self.grid_columnconfigure((0, 1, 2), weight=1)
+        if self.player_id == self.root.game_data.get_id():
+            self.name.configure(state="normal")
+        self.name.grid(row=0, column=0, columnspan=3, sticky="news")
+        self.cash.grid(row=1, column=0, columnspan=3, sticky="news")
+        self.token.grid(row=2, column=1, sticky="news")
+        if arrows:
+            self.left_arrow.grid(row=2, column=0)
+            self.right_arrow.grid(row=2, column=2)
+
+    def hide_arrows(self):
+        self.left_arrow.grid_remove()
+        self.right_arrow.grid_remove()
+
+    def left_arrow_click(self):
+        if self.selected_token is None:
+            self.selected_token = len(self.root.tokens) - 1
+        else:
+            self.selected_token -= 1
+            if self.selected_token < 0:
+                self.selected_token = len(self.root.tokens) - 1
+        self.token.configure(image=self.root.tokens[self.selected_token])
+        self.root.messenger.send(
+            action="update_player",
+            parameters={
+                "attribute": "token",
+                "value": os.path.splitext(os.path.basename(config.tokens[self.selected_token]))[0]},
+        )
+
+    def right_arrow_click(self):
+        if self.selected_token is None:
+            self.selected_token = 0
+        else:
+            self.selected_token += 1
+            if self.selected_token >= len(self.winfo_toplevel().tokens):
+                self.selected_token = 0
+        self.token.configure(image=self.winfo_toplevel().tokens[self.selected_token])
+        self.root.messenger.send(
+            action="update_player",
+            parameters={
+                "attribute": "token",
+                "value": os.path.splitext(os.path.basename(config.tokens[self.selected_token]))[0]},
+        )
+
+
 class PlayersFrame(ttk.Frame):
     def __init__(self, master, *args, **kwargs):
         super().__init__(master, *args, **kwargs)
