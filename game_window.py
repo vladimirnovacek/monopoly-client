@@ -15,7 +15,7 @@ from messenger import Messenger
 from rightmenu import RightMenu
 
 
-class GameWindow(tk.Tk, Observer, Updatable):
+class GameWindow(tk.Tk, Updatable):
 
     def __init__(self, messenger: Messenger, game_data: GameData) -> None:
         super().__init__()
