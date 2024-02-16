@@ -84,14 +84,15 @@ class PlayerFrame(ttk.Frame):
 class PlayersFrame(ttk.Frame):
     def __init__(self, master, *args, **kwargs):
         super().__init__(master, *args, **kwargs)
-        self.configure()
+        self.players: list[list[PlayerFrame]] = [[], []]
         self.grid_rowconfigure((0, 1), weight=1)
         self.grid_columnconfigure((0, 1), weight=1)
         for i in range(2):
             for j in range(2):
-                label_text = f"Label {i * 2 + j + 1}"
-                label = tk.Label(self, text=label_text, padx=10, pady=10)
-                label.grid(row=i, column=j)
+                frame = PlayerFrame(self, i * 2 + j)
+                frame.grid_propagate(tk.NO)
+                self.players[i].append(frame)
+                frame.grid(row=i, column=j, sticky="news")
 
 
 
