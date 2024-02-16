@@ -67,7 +67,6 @@ class GameWindow(tk.Tk, Observer, Updatable):
             condition.call(section=section, item=item, attribute=attribute, value=value)
 
     def destroy(self):
-        self.game_data.unregister(self)
         super().destroy()
 
     def _retrieve_board_data(self):
