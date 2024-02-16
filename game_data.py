@@ -34,7 +34,6 @@ class GameData:
     """
 
     def __init__(self):
-        self.observers: list[Observer] = []  # TODO could be a set
         self.fields: list[Field] = []
         self.players: list[Player] = [
             {"player_id": 0, "name": "", "token": "", "cash": 0, "field_id": -1, "ready": False},
@@ -57,17 +56,6 @@ class GameData:
         if self.misc["on_turn"] == self.misc["my_id"]:
             return True
         return False
-
-    def register(self, observer: Observer):
-        """
-        Registers an observer. The observer will be notified when the game data changes.
-        :param observer:
-        :return:
-        """
-        self.observers.append(observer)
-
-    def unregister(self, observer: Observer):
-        self.observers.remove(observer)
 
     @overload
     def update(self, *, section: str, item: str | int, value: Any):
