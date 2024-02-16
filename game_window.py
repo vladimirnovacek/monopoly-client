@@ -1,11 +1,13 @@
 
 from __future__ import annotations
 
+import logging
 import tkinter as tk
-from tkinter import ttk
-from PIL import ImageTk
 
-from interfaces import Updatable, Conditions, Observer
+from PIL import ImageTk, Image
+
+import config
+from interfaces import Updatable, Conditions
 from gameboard import GameBoard
 
 from game_data import GameData
