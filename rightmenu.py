@@ -68,11 +68,4 @@ class RightMenu(ttk.Frame, Updatable):
             else:
                 button.configure(state=tk.DISABLED)
 
-    def roll(self):
-        self.master.message_factory.send("roll")
 
-    def buy(self):
-        pass
-
-    def end_turn(self):
-        self.master.message_factory.send("end_turn")
