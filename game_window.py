@@ -17,12 +17,7 @@ class GameWindow(tk.Tk, Observer, Updatable):
 
     def __init__(self, message_factory: MessageFactory, game_data: GameData) -> None:
         super().__init__()
-        self.geometry("1280x720")
-        self.title("Monopoly")
-        # self.resizable(False, False)
-        self.message_factory: MessageFactory = message_factory
-        self.game_data: GameData = game_data
-        self.game_data.register(self)
+
         self.not_selected_token = ImageTk.PhotoImage(Image.open("resources/tokens/not_selected.png"))
         self.tokens: list[ImageTk.PhotoImage] = [
             ImageTk.PhotoImage(file=token) for token in config.tokens
@@ -30,6 +25,12 @@ class GameWindow(tk.Tk, Observer, Updatable):
         self.images: dict[str, ImageTk.PhotoImage] = {
             "board": ImageTk.PhotoImage(file="resources/board.png"),
         }
+
+        # game control
+        self.messenger: Messenger = messenger
+        self.messenger.game = self
+        self.game_data: GameData = game_data
+
 
         self.game_board: GameBoard = GameBoard(self)
         self.game_board.grid(row=0, column=0, padx=60, pady=60, sticky="nsew")
