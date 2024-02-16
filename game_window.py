@@ -50,7 +50,15 @@ class GameWindow(tk.Tk, Observer, Updatable):
         }
         conditions.update(super().get_conditions())
         return conditions
-        
+
+    def parse(self, **message):
+        logging.debug(f"Parsing event: {message['item']}")
+        match message["item"]:
+            case "initialize":
+                self._retrieve_board_data()
+                self._retrieve_my_data()
+                self._add_player(self.game_data["misc"]["my_id"])
+
     def update_value(self, section, item, attribute, value):
         for condition in self._conditions:
             condition.call(section=section, item=item, attribute=attribute, value=value)
@@ -58,3 +66,23 @@ class GameWindow(tk.Tk, Observer, Updatable):
     def destroy(self):
         self.game_data.unregister(self)
         super().destroy()
+
+    def _retrieve_board_data(self):
+        for message in self.messenger.message["fields"]:
+            self.game_data.update(
+                section="fields", item=message["item"], attribute=message["attribute"], value=message["value"]
+            )
+
+    def _retrieve_my_data(self):
+        for message in self.messenger.message["misc"]:
+            self.game_data.update(
+                section="misc", item=message["item"], value=message["value"]
+            )
+
+    def _add_player(self, player_id: int):
+        for message in self.messenger.message["players"]:
+            if player_id == message["item"]:
+                self.game_data.update(
+                    section="players", item=message["item"], attribute=message["attribute"], value=message["value"]
+                )
+        self.right_menu.add_player(self.game_data.players[player_id])

@@ -34,13 +34,8 @@ class GameData:
     """
 
     def __init__(self):
-        self.fields: list[Field] = []
-        self.players: list[Player] = [
-            {"player_id": 0, "name": "", "token": "", "cash": 0, "field_id": -1, "ready": False},
-            {"player_id": 1, "name": "", "token": "", "cash": 0, "field_id": -1, "ready": False},
-            {"player_id": 2, "name": "", "token": "", "cash": 0, "field_id": -1, "ready": False},
-            {"player_id": 3, "name": "", "token": "", "cash": 0, "field_id": -1, "ready": False}
-        ]
+        self.fields: dict[int, Field] = {}
+        self.players: dict[int, Player] = {}
         self.misc: Misc = {}
 
     def __getitem__(self, item):
