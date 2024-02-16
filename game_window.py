@@ -26,6 +26,8 @@ class GameWindow(tk.Tk, Updatable):
         ]
         self.images: dict[str, ImageTk.PhotoImage] = {
             "board": ImageTk.PhotoImage(file="resources/board.png"),
+            "left_arrow": ImageTk.PhotoImage(Image.open("resources/buttons/left_arrow.png")),
+            "right_arrow": ImageTk.PhotoImage(Image.open("resources/buttons/right_arrow.png")),
         }
 
         # game control
