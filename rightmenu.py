@@ -94,6 +94,11 @@ class PlayersFrame(ttk.Frame):
                 self.players[i].append(frame)
                 frame.grid(row=i, column=j, sticky="news")
 
+    def add_player(self, player: Player):
+        column, row = player["player_id"] % 2, player["player_id"] // 2
+        self.players[column][row].draw()
+        self.grid_rowconfigure((0, 1), weight=1)
+        self.grid_columnconfigure((0, 1), weight=1)
 
 
 class RightMenu(ttk.Frame, Updatable):
@@ -117,6 +122,9 @@ class RightMenu(ttk.Frame, Updatable):
 
         self.btn_end_turn = ttk.Button(self, text="End turn", command=self.end_turn)
         self.btn_end_turn.grid(row=2, column=0, pady=20, sticky="e")
+
+    def add_player(self, player: Player):
+        self.frm_players.add_player(player)
 
     def get_conditions(self) -> set[Conditions]:
         conditions = {
