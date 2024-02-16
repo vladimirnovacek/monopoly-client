@@ -9,13 +9,13 @@ from interfaces import Updatable, Conditions, Observer
 from gameboard import GameBoard
 
 from game_data import GameData
-from message_factory import MessageFactory
+from messenger import Messenger
 from rightmenu import RightMenu
 
 
 class GameWindow(tk.Tk, Observer, Updatable):
 
-    def __init__(self, message_factory: MessageFactory, game_data: GameData) -> None:
+    def __init__(self, messenger: Messenger, game_data: GameData) -> None:
         super().__init__()
 
         self.not_selected_token = ImageTk.PhotoImage(Image.open("resources/tokens/not_selected.png"))
