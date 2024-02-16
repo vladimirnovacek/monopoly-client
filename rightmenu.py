@@ -117,11 +117,14 @@ class RightMenu(ttk.Frame, Updatable):
         self.txt_game_log = tk.Text(self.frm_game_log, state=tk.DISABLED, width=40, height=12)
         self.txt_game_log.pack(expand=True, fill="both")
 
-        # self.frm_buttons = ttk.Frame(self)
-        # self.frm_buttons.grid(row=2, column=0, padx=10, pady=10, sticky="news")
+        self.frm_buttons = ttk.Frame(self)
+        self.frm_buttons.grid(row=2, column=0, padx=10, pady=10, sticky="news")
 
-        self.btn_end_turn = ttk.Button(self, text="End turn", command=self.end_turn)
-        self.btn_end_turn.grid(row=2, column=0, pady=20, sticky="e")
+        self.chk_ready = ttk.Checkbutton(self.frm_buttons, text="Ready")
+        self.chk_ready.pack(side=tk.LEFT)
+
+        self.btn_end_turn = ttk.Button(self.frm_buttons, text="End turn")
+        self.btn_end_turn.pack(side=tk.RIGHT)
 
     def add_player(self, player: Player):
         self.frm_players.add_player(player)
