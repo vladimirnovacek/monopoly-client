@@ -23,11 +23,9 @@ class GameWindow(tk.Tk, Observer, Updatable):
         self.message_factory: MessageFactory = message_factory
         self.game_data: GameData = game_data
         self.game_data.register(self)
-        self.tokens: list[str] = [
-            "resources/tokens/car.png",
-            "resources/tokens/hat.png",
-            "resources/tokens/thimble.png",
-            "resources/tokens/wheelbarrow.png",
+        self.not_selected_token = ImageTk.PhotoImage(Image.open("resources/tokens/not_selected.png"))
+        self.tokens: list[ImageTk.PhotoImage] = [
+            ImageTk.PhotoImage(file=token) for token in config.tokens
         ]
         self.images: dict[str, ImageTk.PhotoImage] = {
             "board": ImageTk.PhotoImage(file="resources/board.png"),
