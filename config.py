@@ -2,7 +2,12 @@
 server_address = "localhost"
 server_port = 8123
 
-available_tokens = ["car", "hat", "thimble", "wheelbarrow"]
+tokens = [
+    "resources/tokens/car.png",
+    "resources/tokens/hat.png",
+    "resources/tokens/thimble.png",
+    "resources/tokens/wheelbarrow.png",
+]
 
 # PATHS
 path_images = "resources"
