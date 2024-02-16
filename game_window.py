@@ -31,6 +31,10 @@ class GameWindow(tk.Tk, Observer, Updatable):
         self.messenger.game = self
         self.game_data: GameData = game_data
 
+        # Window drawing
+        self.geometry("1280x720")
+        self.title("Monopoly")
+        self.resizable(False, False)
 
         self.game_board: GameBoard = GameBoard(self)
         self.game_board.grid(row=0, column=0, padx=60, pady=60, sticky="nsew")
