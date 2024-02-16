@@ -1,7 +1,10 @@
-import itertools
+import os
 import tkinter as tk
 import typing
 from tkinter import ttk
+
+import config
+from game_data import Player
 
 from interfaces import Updatable, Conditions
 
