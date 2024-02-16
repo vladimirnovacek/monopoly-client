@@ -2,20 +2,20 @@ import pickle
 
 from twisted.internet.protocol import ClientFactory, Protocol
 
-from interfaces import Parser
-from message_factory import MessageFactory
+from messenger import Messenger
 
 
 class Client(Protocol):
     factory: "ClFactory"
 
     def dataReceived(self, data: bytes):
-        print(f"Received data: {pickle.loads(data)}")
-        self.factory.parser.parse(data)
+        print(f"Received data: ")
+        for i in pickle.loads(data):
+            print(i)
+        self.factory.messenger.parse(data)
 
     def connectionMade(self):
-        self.factory.parser.network = self
-        self.factory.message_factory.network = self
+        self.factory.messenger.network = self
 
     def send(self, data: bytes):
         print(f"Sending data: {pickle.loads(data)}")
@@ -26,6 +26,5 @@ class Client(Protocol):
 class ClFactory(ClientFactory):
     protocol = Client
 
-    def __init__(self, parser: Parser, message_factory: MessageFactory):
-        self.parser: Parser = parser
-        self.message_factory: MessageFactory = message_factory
+    def __init__(self, messenger: Messenger):
+        self.messenger: Messenger = messenger
