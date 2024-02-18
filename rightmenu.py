@@ -54,7 +54,7 @@ class PlayerFrame(ttk.Frame):
 
         self.selected_token_id: int  = -1
         self.token = ttk.Label(self, image=self.root.not_selected_token, anchor="center")
-        ttk.Style().configure("Flat.TButton", padding=0, relief="flat")
+
         self.right_arrow = ttk.Button(
             self,
             image=self.root.images["right_arrow"],
