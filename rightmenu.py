@@ -153,7 +153,7 @@ class PlayersFrame(ttk.Frame):
                 frame.grid(row=i, column=j, sticky="news")
 
     def add_player(self, player: Player):
-        column, row = player["player_id"] % 2, player["player_id"] // 2
+        row, column = player["player_id"] % 2, player["player_id"] // 2
         self.players[column][row].draw()
         self.grid_rowconfigure((0, 1), weight=1)
         self.grid_columnconfigure((0, 1), weight=1)
