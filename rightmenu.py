@@ -185,7 +185,9 @@ class RightMenu(ttk.Frame, Updatable):
         self.frm_buttons = ttk.Frame(self)
         self.frm_buttons.grid(row=2, column=0, padx=10, pady=10, sticky="news")
 
-        self.chk_ready = ttk.Checkbutton(self.frm_buttons, text="Ready")
+        self.ready_state = "!selected"
+        self.chk_ready = ttk.Checkbutton(self.frm_buttons, text="Ready", command=self._chk_ready_clicked)
+        self.chk_ready.state(['!alternate', self.ready_state])
         self.chk_ready.pack(side=tk.LEFT)
 
         self.btn_end_turn = ttk.Button(self.frm_buttons, text="End turn")
@@ -197,4 +199,20 @@ class RightMenu(ttk.Frame, Updatable):
     def update_player(self, player_id, attribute, value):
         self.frm_players.update_player(player_id, attribute, value)
 
+    def set_ready(self, ready: bool):
+        if ready != (self.ready_state == "selected"):
+            self.chk_ready.state(["selected" if ready else "!selected"])
+            self._chk_ready_clicked()
 
+    def _chk_ready_clicked(self):
+        if self.chk_ready.instate(['selected']):
+            self.ready_state = "selected"
+        else:
+            self.ready_state = "!selected"
+        self.master.messenger.send(
+            action="update_player",
+            parameters={
+                "attribute": "ready",
+                "value": self.ready_state == "selected"
+            }
+        )
