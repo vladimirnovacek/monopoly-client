@@ -46,6 +46,8 @@ class PlayerFrame(ttk.Frame):
             style="Flat.TButton",
         )
         self.selected_token: int | None = None
+
+        self.selected_token_id: int  = -1
         self.token = ttk.Label(self, image=self.root.not_selected_token, anchor="center")
         ttk.Style().configure("Flat.TButton", padding=0, relief="flat")
         self.right_arrow = ttk.Button(
@@ -85,20 +87,33 @@ class PlayerFrame(ttk.Frame):
                 "attribute": "token",
                 "value": os.path.splitext(os.path.basename(config.tokens[self.selected_token]))[0]},
         )
+    def left_arrow_click(self):
+        if self.selected_token_id is None:
+            self.selected_token_id = len(self.root.tokens) - 1
+        else:
+            self.selected_token_id -= 1
+            if self.selected_token_id < 0:
+                self.selected_token_id = len(self.root.tokens) - 1
+        self._set_token()
 
     def right_arrow_click(self):
-        if self.selected_token is None:
-            self.selected_token = 0
+        if self.selected_token_id is None:
+            self.selected_token_id = 0
         else:
-            self.selected_token += 1
-            if self.selected_token >= len(self.winfo_toplevel().tokens):
-                self.selected_token = 0
-        self.token.configure(image=self.winfo_toplevel().tokens[self.selected_token])
+            self.selected_token_id += 1
+            if self.selected_token_id >= len(self.root.tokens):
+                self.selected_token_id = 0
+        self._set_token()
+
+    def _set_token(self):
+        self.token.configure(image=self.root.tokens[self.selected_token_id])
+        self.root.right_menu.set_ready(False)
         self.root.messenger.send(
             action="update_player",
             parameters={
                 "attribute": "token",
-                "value": os.path.splitext(os.path.basename(config.tokens[self.selected_token]))[0]},
+                "value": config.tokens[self.selected_token_id]
+            },
         )
 
 
