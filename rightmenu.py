@@ -39,7 +39,12 @@ class PlayerFrame(ttk.Frame):
         self.name = ttk.Entry(self, justify=tk.CENTER, style="NotReady.TEntry")
         self.name.insert(0, self.name_value)
         self.name.configure(state="disabled")
+        self.name.bind("<Return>", lambda event: self.name_updated(event.widget.get()))
+        self.name.bind("<KP_Enter>", lambda event: self.name_updated(event.widget.get()))
+        self.name.bind("<FocusOut>", lambda event: self.name_updated(event.widget.get()))
+
         self.cash = ttk.Label(self, text="0", anchor="center")
+
         self.left_arrow = ttk.Button(
             self,
             image=self.root.images["left_arrow"],
