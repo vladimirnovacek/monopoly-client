@@ -2,7 +2,9 @@
 from __future__ import annotations
 
 import logging
+import os
 import tkinter as tk
+from tkinter import ttk
 
 from PIL import ImageTk, Image
 
@@ -20,9 +22,12 @@ class GameWindow(tk.Tk, Updatable):
     def __init__(self, messenger: Messenger, game_data: GameData) -> None:
         super().__init__()
 
+        # images
         self.not_selected_token = ImageTk.PhotoImage(Image.open("resources/tokens/not_selected.png"))
         self.tokens: list[ImageTk.PhotoImage] = [
-            ImageTk.PhotoImage(file=token) for token in config.tokens
+            ImageTk.PhotoImage(
+                file=os.path.join(config.path_tokens, f"{token}.png")
+            ) for token in config.tokens
         ]
         self.images: dict[str, ImageTk.PhotoImage] = {
             "board": ImageTk.PhotoImage(file="resources/board.png"),

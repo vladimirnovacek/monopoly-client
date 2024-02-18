@@ -3,14 +3,15 @@ server_address = "localhost"
 server_port = 8123
 
 tokens = [
-    "resources/tokens/car.png",
-    "resources/tokens/hat.png",
-    "resources/tokens/thimble.png",
-    "resources/tokens/wheelbarrow.png",
+    "car",
+    "hat",
+    "thimble",
+    "wheelbarrow",
 ]
 
 # PATHS
 path_images = "resources"
+path_tokens = "resources/tokens"
 
 # BOARD INFORMATIONS
 board_size = {"width": 600, "height": 600}
