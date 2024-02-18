@@ -150,27 +150,5 @@ class RightMenu(ttk.Frame, Updatable):
     def add_player(self, player: Player):
         self.frm_players.add_player(player)
 
-    def get_conditions(self) -> set[Conditions]:
-        conditions = {
-            Conditions(self.update_value, section="players", attribute="possible_actions")
-        }
-        conditions.update(super().get_conditions())
-        return conditions
-
-    def update_value(self, section, item, attribute, value):
-        if section == "players" and attribute == "possible_actions":
-            if self.master.game_data.on_turn:
-                for name, button in self.buttons.items():
-                    if name in value:
-                        button.configure(state=tk.NORMAL)
-                    else:
-                        button.configure(state=tk.DISABLED)
-
-    def process_actions(self, data: set[str]):
-        for button_name, button in self.buttons.items():
-            if button_name in data:
-                button.configure(state=tk.NORMAL)
-            else:
-                button.configure(state=tk.DISABLED)
 
 
