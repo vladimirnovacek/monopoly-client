@@ -45,6 +45,8 @@ class GameWindow(tk.Tk, Updatable):
         self.title("Monopoly")
         self.resizable(False, False)
 
+        self.style = ttk.Style()
+
         self.game_board: GameBoard = GameBoard(self)
         self.game_board.grid(row=0, column=0, padx=60, pady=60, sticky="nsew")
 

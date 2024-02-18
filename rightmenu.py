@@ -19,6 +19,24 @@ class PlayerFrame(ttk.Frame):
         self.root: GameWindow = self.winfo_toplevel()
         self.name = ttk.Entry(self, justify=tk.CENTER)
         self.name.insert(0, f"Player {player_id + 1}")
+        self.root.style.configure("Flat.TButton", padding=0, relief="flat")
+        self.root.style.configure("TEntry", padding=0, relief="flat", borderwidth=0)
+        self.root.style.map(
+            "TEntry",
+            borderwidth=[("disabled", 0), ("!disabled", 0)],
+            foreground=[("disabled", "black"), ("!disabled", "black")],
+        )
+        self.root.style.map(
+            "Ready.TEntry",
+            fieldbackground=[("disabled", "green1"), ("!disabled", "green1")],
+        )
+        self.root.style.map(
+            "NotReady.TEntry",
+            fieldbackground=[("disabled", "grey85"), ("!disabled", "white")],
+        )
+        self.root.style.configure("Ready.TEntry", fieldbackground="green1")
+        self.root.style.configure("NotReady.TEntry", fieldbackground="white")
+        self.name = ttk.Entry(self, justify=tk.CENTER, style="NotReady.TEntry")
         self.name.configure(state="disabled")
         self.cash = ttk.Label(self, text="0", anchor="center")
         self.left_arrow = ttk.Button(
