@@ -9,7 +9,7 @@ from tkinter import ttk
 from PIL import ImageTk, Image
 
 import config
-from interfaces import Updatable, Conditions
+from interfaces import Updatable
 from gameboard import GameBoard
 
 from game_data import GameData
@@ -54,17 +54,6 @@ class GameWindow(tk.Tk, Updatable):
         self.right_menu.grid(row=0, column=1, sticky="nsew")
         self.grid_columnconfigure(1, weight=1)
 
-    def draw_lobby(self):
-        pass
-
-    def get_conditions(self) -> set[Conditions]:
-        conditions = {
-            Conditions(self.deiconify, False, section="events", item="game_started"),
-            Conditions(self.withdraw, False, section="misc", item="state", value="pregame"),
-        }
-        conditions.update(super().get_conditions())
-        return conditions
-
     def parse(self, **message):
         logging.debug(f"Parsing event: {message['item']}")
         match message["item"]:
@@ -76,9 +65,6 @@ class GameWindow(tk.Tk, Updatable):
     def update_value(self, section, item, attribute, value):
         for condition in self._conditions:
             condition.call(section=section, item=item, attribute=attribute, value=value)
-
-    def destroy(self):
-        super().destroy()
 
     def _retrieve_board_data(self):
         for message in self.messenger.message["fields"]:
