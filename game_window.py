@@ -59,8 +59,14 @@ class GameWindow(tk.Tk, Updatable):
         match message["item"]:
             case "initialize":
                 self._retrieve_board_data()
+                self._retrieve_player_data()
                 self._retrieve_my_data()
-                self._add_player(self.game_data["misc"]["my_id"])
+                for player_id in self.game_data["players"].keys():
+                    self._add_player(player_id)
+            case "player_updated":
+                self._update_player()
+            case "player_connected":
+                self._add_player(self.messenger.message["players"][0]["item"])
 
     def update_value(self, section, item, attribute, value):
         for condition in self._conditions:
@@ -70,6 +76,12 @@ class GameWindow(tk.Tk, Updatable):
         for message in self.messenger.message["fields"]:
             self.game_data.update(
                 section="fields", item=message["item"], attribute=message["attribute"], value=message["value"]
+            )
+
+    def _retrieve_player_data(self):
+        for message in self.messenger.message["players"]:
+            self.game_data.update(
+                section="players", item=message["item"], attribute=message["attribute"], value=message["value"]
             )
 
     def _retrieve_my_data(self):
@@ -85,3 +97,10 @@ class GameWindow(tk.Tk, Updatable):
                     section="players", item=message["item"], attribute=message["attribute"], value=message["value"]
                 )
         self.right_menu.add_player(self.game_data.players[player_id])
+
+    def _update_player(self):
+        for message in self.messenger.message["players"]:
+            self.game_data.update(
+                section="players", item=message["item"], attribute=message["attribute"], value=message["value"]
+            )
+            self.right_menu.update_player(message["item"], message["attribute"], message["value"])
