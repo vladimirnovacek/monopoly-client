@@ -1,4 +1,3 @@
-import os
 import tkinter as tk
 import typing
 from tkinter import ttk
@@ -6,7 +5,7 @@ from tkinter import ttk
 import config
 from game_data import Player
 
-from interfaces import Updatable, Conditions
+from interfaces import Updatable
 
 if typing.TYPE_CHECKING:
     from game_window import GameWindow
@@ -45,7 +44,6 @@ class PlayerFrame(ttk.Frame):
             command=self.left_arrow_click,
             style="Flat.TButton",
         )
-        self.selected_token: int | None = None
 
         self.selected_token_id: int  = -1
         self.token = ttk.Label(self, image=self.root.not_selected_token, anchor="center")
@@ -73,20 +71,18 @@ class PlayerFrame(ttk.Frame):
         self.left_arrow.grid_remove()
         self.right_arrow.grid_remove()
 
-    def left_arrow_click(self):
-        if self.selected_token is None:
-            self.selected_token = len(self.root.tokens) - 1
-        else:
-            self.selected_token -= 1
-            if self.selected_token < 0:
-                self.selected_token = len(self.root.tokens) - 1
-        self.token.configure(image=self.root.tokens[self.selected_token])
-        self.root.messenger.send(
-            action="update_player",
-            parameters={
-                "attribute": "token",
-                "value": os.path.splitext(os.path.basename(config.tokens[self.selected_token]))[0]},
-        )
+    def name_updated(self, name: str):
+        if name != self.name_value:
+            self.name_value = name
+            self.root.right_menu.set_ready(False)
+            self.root.messenger.send(
+                action="update_player",
+                parameters={
+                    "attribute": "name",
+                    "value": name
+                }
+            )
+
     def left_arrow_click(self):
         if self.selected_token_id is None:
             self.selected_token_id = len(self.root.tokens) - 1
