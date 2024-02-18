@@ -74,6 +74,25 @@ class PlayerFrame(ttk.Frame):
         self.cash.grid(row=1, column=0, columnspan=3, sticky="news")
         self.token.grid(row=2, column=1, sticky="news")
 
+    def update_player(self, attribute: str, value: typing.Any):
+        match attribute:
+            case "ready":
+                self.name.configure(style="Ready.TEntry" if value is True else "NotReady.TEntry")
+            case "name":
+                if value != self.name.get():
+                    disable = False
+                    if "disabled" in self.name.state():
+                        self.name.configure(state="normal")
+                        disable = True
+                    self.name.delete(0, tk.END)
+                    self.name.insert(0, value)
+                    if disable:
+                        self.name.configure(state="disabled")
+            case "token":
+                if self.selected_token_id == -1 or value != config.tokens[self.selected_token_id]:
+                    self.token.configure(image=self.root.tokens[config.tokens.index(value)])
+
+
     def hide_arrows(self):
         self.left_arrow.grid_remove()
         self.right_arrow.grid_remove()
@@ -139,6 +158,13 @@ class PlayersFrame(ttk.Frame):
         self.grid_rowconfigure((0, 1), weight=1)
         self.grid_columnconfigure((0, 1), weight=1)
 
+    def update_player(self, player_id, attribute, value) -> None:
+        self._get_player_frame(player_id).update_player(attribute, value)
+
+    def _get_player_frame(self, player_id: int) -> PlayerFrame:
+        row, column = player_id % 2, player_id // 2
+        return self.players[column][row]
+
 
 class RightMenu(ttk.Frame, Updatable):
 
@@ -168,5 +194,7 @@ class RightMenu(ttk.Frame, Updatable):
     def add_player(self, player: Player):
         self.frm_players.add_player(player)
 
+    def update_player(self, player_id, attribute, value):
+        self.frm_players.update_player(player_id, attribute, value)
 
 
