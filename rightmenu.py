@@ -14,10 +14,9 @@ if typing.TYPE_CHECKING:
 class PlayerFrame(ttk.Frame):
     def __init__(self, master, player_id: int, *args, **kwargs) -> None:
         super().__init__(master, *args, **kwargs)
-        self.player_id: int = player_id
         self.root: GameWindow = self.winfo_toplevel()
-        self.name = ttk.Entry(self, justify=tk.CENTER)
-        self.name.insert(0, f"Player {player_id + 1}")
+        self.player_id: int = player_id
+
         self.root.style.configure("Flat.TButton", padding=0, relief="flat")
         self.root.style.configure("TEntry", padding=0, relief="flat", borderwidth=0)
         self.root.style.map(
@@ -35,7 +34,10 @@ class PlayerFrame(ttk.Frame):
         )
         self.root.style.configure("Ready.TEntry", fieldbackground="green1")
         self.root.style.configure("NotReady.TEntry", fieldbackground="white")
+
+        self.name_value = f"Player {player_id + 1}"
         self.name = ttk.Entry(self, justify=tk.CENTER, style="NotReady.TEntry")
+        self.name.insert(0, self.name_value)
         self.name.configure(state="disabled")
         self.cash = ttk.Label(self, text="0", anchor="center")
         self.left_arrow = ttk.Button(
