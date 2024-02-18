@@ -67,12 +67,12 @@ class PlayerFrame(ttk.Frame):
         self.grid_columnconfigure((0, 1, 2), weight=1)
         if self.player_id == self.root.game_data.get_id():
             self.name.configure(state="normal")
+            if arrows:
+                self.left_arrow.grid(row=2, column=0)
+                self.right_arrow.grid(row=2, column=2)
         self.name.grid(row=0, column=0, columnspan=3, sticky="news")
         self.cash.grid(row=1, column=0, columnspan=3, sticky="news")
         self.token.grid(row=2, column=1, sticky="news")
-        if arrows:
-            self.left_arrow.grid(row=2, column=0)
-            self.right_arrow.grid(row=2, column=2)
 
     def hide_arrows(self):
         self.left_arrow.grid_remove()
