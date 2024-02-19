@@ -89,7 +89,9 @@ class PlayerFrame(ttk.Frame):
                     if disable:
                         self.name.configure(state="disabled")
             case "token":
-                if self.selected_token_id == -1 or value != config.tokens[self.selected_token_id]:
+                if value == "":
+                    self.token.configure(image=self.root.not_selected_token)
+                elif self.selected_token_id == -1 or value != config.tokens[self.selected_token_id]:
                     self.token.configure(image=self.root.tokens[config.tokens.index(value)])
 
 
@@ -199,7 +201,7 @@ class RightMenu(ttk.Frame, Updatable):
     def update_player(self, player_id, attribute, value):
         self.frm_players.update_player(player_id, attribute, value)
 
-    def set_ready(self, ready: bool):
+    def set_ready(self, ready: bool) -> None:
         if ready != (self.ready_state == "selected"):
             self.chk_ready.state(["selected" if ready else "!selected"])
             self._chk_ready_clicked()
