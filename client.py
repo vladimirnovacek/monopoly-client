@@ -1,7 +1,9 @@
 import pickle
+from typing import Any
 
 from twisted.internet.protocol import ClientFactory, Protocol
 
+import config
 from messenger import Messenger
 
 
@@ -9,18 +11,20 @@ class Client(Protocol):
     factory: "ClFactory"
 
     def dataReceived(self, data: bytes):
+        messages = config.encoder.decode(data)
         print(f"Received data: ")
-        for i in pickle.loads(data):
-            print(i)
-        self.factory.messenger.parse(data)
+        for message in messages:
+            for i in message:
+                print(i)
+            self.factory.messenger.parse(message)
 
     def connectionMade(self):
         self.factory.messenger.network = self
 
-    def send(self, data: bytes):
-        print(f"Sending data: {pickle.loads(data)}")
+    def send(self, message: Any):
+        print(f"Sending data: {message}")
         # noinspection PyArgumentList
-        self.transport.write(data)
+        self.transport.write(config.encoder.encode(message))
 
 
 class ClFactory(ClientFactory):

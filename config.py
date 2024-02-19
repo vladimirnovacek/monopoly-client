@@ -1,6 +1,10 @@
+from typing import Type
+
+import encoders
 
 server_address = "localhost"
 server_port = 8123
+encoder: Type[encoders.Encoder] = encoders.PickleEncoder
 
 tokens = [
     "car",

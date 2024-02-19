@@ -1,4 +1,3 @@
-import pickle
 from typing import Any, TYPE_CHECKING, TypedDict, Literal, Optional
 from uuid import UUID
 
@@ -36,28 +35,25 @@ class Messenger:
         else:
             return 999
 
-    def parse(self, data: bytes):
+    def parse(self, message: list):
         """
         Parses a message from the server.
-        :param data: The message to parse.
+        :param message: The message to parse.
+        :type message: list
         :return:
         """
-        self.message = self.organize_messages(pickle.loads(data))
+        self.message = self.organize_messages(message)
         for event in self.message["events"]:
             self.game.parse(section="events", item=event["item"], value=event["value"])
 
-    def _get(self, action: str, parameters: dict[str, Any]) -> bytes:
+    def send(self, action: str, parameters: dict[str, Any] = None):
+        if parameters is None:
+            parameters = {}
         message = {
             "my_uuid": self.uuid,
             "action": action,
             "parameters": parameters
         }
-        return pickle.dumps(message)
-
-    def send(self, action: str, parameters: dict[str, Any] = None):
-        if parameters is None:
-            parameters = {}
-        message = self._get(action, parameters)
         self.network.send(message)
 
     @staticmethod
