@@ -66,12 +66,9 @@ class GameWindow(tk.Tk, Updatable):
             case "player_updated":
                 self._update_player()
             case "player_connected":
+                self._retrieve_player_data()
                 self._add_player(message["value"])
                 self._update_player()
-
-    def update_value(self, section, item, attribute, value):
-        for condition in self._conditions:
-            condition.call(section=section, item=item, attribute=attribute, value=value)
 
     def _retrieve_board_data(self):
         for message in self.messenger.message["fields"]:
@@ -92,15 +89,7 @@ class GameWindow(tk.Tk, Updatable):
             )
 
     def _add_player(self, player_id: int):
-        for message in self.messenger.message["players"]:
-            if player_id == message["item"]:
-                self.game_data.update(
-                    section="players", item=message["item"], attribute=message["attribute"], value=message["value"]
-                )
-        self.messenger.message["players"] = list(filter(
-            lambda x: x["item"] != player_id, self.messenger.message["players"]
-        ))
-        self.right_menu.add_player(self.game_data.players[player_id])
+        self.right_menu.add_player(player_id)
 
     def _update_player(self):
         for message in self.messenger.message["players"]:

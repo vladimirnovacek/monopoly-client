@@ -3,7 +3,6 @@ import typing
 from tkinter import ttk
 
 import config
-from game_data import Player
 
 from interfaces import Updatable
 
@@ -62,12 +61,15 @@ class PlayerFrame(ttk.Frame):
             style="Flat.TButton",
         )
 
-    def draw(self, arrows: bool = True):
+    def draw(self, show_arrows: bool = True):
         self.grid_rowconfigure((0, 1, 2), weight=1)
         self.grid_columnconfigure((0, 1, 2), weight=1)
+        for attribute in ("name", "token", "ready"):
+            if attribute in self.root.game_data.players[self.player_id]:
+                self.update_player(attribute, self.root.game_data.players[self.player_id][attribute])
         if self.player_id == self.root.game_data.get_id():
             self.name.configure(state="normal")
-            if arrows:
+            if show_arrows:
                 self.left_arrow.grid(row=2, column=0)
                 self.right_arrow.grid(row=2, column=2)
         self.name.grid(row=0, column=0, columnspan=3, sticky="news")
@@ -154,11 +156,8 @@ class PlayersFrame(ttk.Frame):
                 self.players[i].append(frame)
                 frame.grid(row=i, column=j, sticky="news")
 
-    def add_player(self, player: Player):
-        row, column = player["player_id"] % 2, player["player_id"] // 2
-        self.players[column][row].draw()
-        self.grid_rowconfigure((0, 1), weight=1)
-        self.grid_columnconfigure((0, 1), weight=1)
+    def add_player(self, player_id: int):
+        self._get_player_frame(player_id).draw()
 
     def update_player(self, player_id, attribute, value) -> None:
         self._get_player_frame(player_id).update_player(attribute, value)
@@ -195,8 +194,8 @@ class RightMenu(ttk.Frame, Updatable):
         self.btn_end_turn = ttk.Button(self.frm_buttons, text="End turn")
         self.btn_end_turn.pack(side=tk.RIGHT)
 
-    def add_player(self, player: Player):
-        self.frm_players.add_player(player)
+    def add_player(self, player_id: int):
+        self.frm_players.add_player(player_id)
 
     def update_player(self, player_id, attribute, value):
         self.frm_players.update_player(player_id, attribute, value)
