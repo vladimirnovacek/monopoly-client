@@ -13,7 +13,7 @@ class Player(TypedDict, total=False):
     name: str
     token: str
     cash: int
-    field_id: int
+    field: int
     ready: bool
 
 
@@ -23,7 +23,7 @@ class Misc(TypedDict, total=False):
     last_roll: tuple
     my_id: int
     my_uuid: UUID
-    players_order: list[int]
+    player_order: list[int]
 
 
 class GameData:
