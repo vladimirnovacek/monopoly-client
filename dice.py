@@ -30,7 +30,8 @@ class Dice(Updatable):
             if self.canvas_id == -1:
                 self.canvas_id = self.master.create_image(
                     *self.location,
-                    image=self.images[self.displayed_value - 1]
+                    image=self.images[self.displayed_value - 1],
+                    tags="dice",
                 )
 
         def display_value(self, value: int) -> None:
