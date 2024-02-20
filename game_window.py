@@ -71,6 +71,12 @@ class GameWindow(tk.Tk, Updatable):
                 self._retrieve_player_data()
                 self._add_player(message["value"])
                 self._update_player()
+            case "game_started":
+                self._retrieve_player_data()
+                self._retrieve_misc_data()
+                self._update_player()
+                self.right_menu.start_game()
+                self.game_board.start_game()
 
     def _retrieve_board_data(self):
         for message in self.messenger.message["fields"]:

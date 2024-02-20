@@ -146,6 +146,7 @@ class PlayerFrame(ttk.Frame):
 class PlayersFrame(ttk.Frame):
     def __init__(self, master, *args, **kwargs):
         super().__init__(master, *args, **kwargs)
+        self.root: GameWindow = self.winfo_toplevel()
         self.players: list[list[PlayerFrame]] = [[], []]
         self.grid_rowconfigure((0, 1), weight=1)
         self.grid_columnconfigure((0, 1), weight=1)
@@ -162,15 +163,20 @@ class PlayersFrame(ttk.Frame):
     def update_player(self, player_id, attribute, value) -> None:
         self._get_player_frame(player_id).update_player(attribute, value)
 
+    def sort_players(self):
+        for order, player_id in enumerate(self.root.game_data.misc["player_order"]):
+            self._get_player_frame(player_id).grid(row=order // 2, column=order % 2, sticky="news")
+
     def _get_player_frame(self, player_id: int) -> PlayerFrame:
-        row, column = player_id % 2, player_id // 2
-        return self.players[column][row]
+        column, row = player_id % 2, player_id // 2
+        return self.players[row][column]
 
 
 class RightMenu(ttk.Frame, Updatable):
 
     def __init__(self, master: "GameWindow", *args, **kwargs) -> None:
         super().__init__(master, *args, **kwargs)
+        self.root: GameWindow = master
         self.configure(relief="solid", borderwidth=2)
         self.grid_rowconfigure(0, weight=1)
         self.grid_columnconfigure(0, weight=1)
@@ -199,6 +205,10 @@ class RightMenu(ttk.Frame, Updatable):
 
     def update_player(self, player_id, attribute, value):
         self.frm_players.update_player(player_id, attribute, value)
+
+    def start_game(self):
+        self.chk_ready.destroy()
+        self.frm_players.sort_players()
 
     def set_ready(self, ready: bool) -> None:
         if ready != (self.ready_state == "selected"):
