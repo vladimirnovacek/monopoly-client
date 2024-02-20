@@ -27,11 +27,6 @@ class GameBoard(tk.Canvas, Updatable):
     ) -> None:
         super().__init__(master, width=width, height=height)
         self.configure(relief="solid", borderwidth=2)
-        self.images = {
-            "background": ImageTk.PhotoImage(Image.open(path.join(config.path_images, "board.png"))),
-            "chance": ImageTk.PhotoImage(Image.open(path.join(config.path_images, "chance.png"))),
-            "cc": ImageTk.PhotoImage(Image.open(path.join(config.path_images, "cc.png")))
-        }
         self.ids = {
             "background": self.create_image(
                 0, 0, anchor=tk.NW, image=self.images["background"]),

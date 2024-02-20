@@ -30,9 +30,11 @@ class GameWindow(tk.Tk, Updatable):
             ) for token in config.tokens
         ]
         self.images: dict[str, ImageTk.PhotoImage] = {
-            "board": ImageTk.PhotoImage(file="resources/board.png"),
-            "left_arrow": ImageTk.PhotoImage(Image.open("resources/buttons/left_arrow.png")),
-            "right_arrow": ImageTk.PhotoImage(Image.open("resources/buttons/right_arrow.png")),
+            "background": ImageTk.PhotoImage(file=os.path.join(config.path_images, "board.png")),
+            "chance": ImageTk.PhotoImage(file=os.path.join(config.path_images, "chance.png")),
+            "cc": ImageTk.PhotoImage(file=os.path.join(config.path_images, "cc.png")),
+            "left_arrow": ImageTk.PhotoImage(file=os.path.join(config.path_images, "buttons/left_arrow.png")),
+            "right_arrow": ImageTk.PhotoImage(file=os.path.join(config.path_images, "buttons/right_arrow.png")),
         }
 
         # game control
