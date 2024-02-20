@@ -62,7 +62,7 @@ class GameWindow(tk.Tk, Updatable):
             case "initialize":
                 self._retrieve_board_data()
                 self._retrieve_player_data()
-                self._retrieve_my_data()
+                self._retrieve_misc_data()
                 for player_id in self.game_data["players"].keys():
                     self._add_player(player_id)
             case "player_updated":
@@ -84,7 +84,7 @@ class GameWindow(tk.Tk, Updatable):
                 section="players", item=message["item"], attribute=message["attribute"], value=message["value"]
             )
 
-    def _retrieve_my_data(self):
+    def _retrieve_misc_data(self):
         for message in self.messenger.message["misc"]:
             self.game_data.update(
                 section="misc", item=message["item"], value=message["value"]
