@@ -31,8 +31,14 @@ class PlayerFrame(ttk.Frame):
             "NotReady.TEntry",
             fieldbackground=[("disabled", "grey85"), ("!disabled", "white")],
         )
-        self.root.style.configure("Ready.TEntry", fieldbackground="green1")
-        self.root.style.configure("NotReady.TEntry", fieldbackground="white")
+        self.root.style.map(
+            "Highlighted.TEntry",
+            fieldbackground=[("disabled", "beige"), ("!disabled", "beige")],
+        )
+        self.root.style.map(
+            "NotHighlighted.TEntry",
+            fieldbackground=[("disabled", "white"), ("!disabled", "white")],
+        )
 
         self.name_value = f"Player {player_id + 1}"
         self.name = ttk.Entry(self, justify=tk.CENTER, style="NotReady.TEntry")
@@ -97,9 +103,9 @@ class PlayerFrame(ttk.Frame):
                     self.token.configure(image=self.root.tokens[config.tokens.index(value)])
 
 
-    def hide_arrows(self):
-        self.left_arrow.grid_remove()
-        self.right_arrow.grid_remove()
+    def destroy_arrows(self):
+        self.left_arrow.destroy()
+        self.right_arrow.destroy()
 
     def name_updated(self, name: str):
         if name != self.name_value:
@@ -131,6 +137,14 @@ class PlayerFrame(ttk.Frame):
                 self.selected_token_id = 0
         self._set_token()
 
+    def start_game(self) -> None:
+        self.destroy_arrows()
+        self.name.configure(state="disabled")
+        if self.player_id == self.root.game_data.misc["on_turn"]:
+            self.name.configure(style="Highlighted.TEntry")
+        else:
+            self.name.configure(style="NotHighlighted.TEntry")
+
     def _set_token(self):
         self.token.configure(image=self.root.tokens[self.selected_token_id])
         self.root.right_menu.set_ready(False)
@@ -147,29 +161,29 @@ class PlayersFrame(ttk.Frame):
     def __init__(self, master, *args, **kwargs):
         super().__init__(master, *args, **kwargs)
         self.root: GameWindow = self.winfo_toplevel()
-        self.players: list[list[PlayerFrame]] = [[], []]
+        self.players: list[PlayerFrame] = []
         self.grid_rowconfigure((0, 1), weight=1)
         self.grid_columnconfigure((0, 1), weight=1)
-        for i in range(2):
-            for j in range(2):
-                frame = PlayerFrame(self, i * 2 + j)
-                frame.grid_propagate(tk.NO)
-                self.players[i].append(frame)
-                frame.grid(row=i, column=j, sticky="news")
+        for i in range(4):
+            frame = PlayerFrame(self, i)
+            frame.grid_propagate(tk.NO)
+            self.players.append(frame)
+            frame.grid(row=i // 2, column=i % 2, sticky="news")
 
     def add_player(self, player_id: int):
-        self._get_player_frame(player_id).draw()
+        self.players[player_id].draw()
 
     def update_player(self, player_id, attribute, value) -> None:
-        self._get_player_frame(player_id).update_player(attribute, value)
+        self.players[player_id].update_player(attribute, value)
+
+    def start_game(self):
+        self.sort_players()
+        for frame in self.players:
+            frame.start_game()
 
     def sort_players(self):
         for order, player_id in enumerate(self.root.game_data.misc["player_order"]):
-            self._get_player_frame(player_id).grid(row=order // 2, column=order % 2, sticky="news")
-
-    def _get_player_frame(self, player_id: int) -> PlayerFrame:
-        column, row = player_id % 2, player_id // 2
-        return self.players[row][column]
+            self.players[player_id].grid(row=order // 2, column=order % 2, sticky="news")
 
 
 class RightMenu(ttk.Frame, Updatable):
@@ -208,7 +222,7 @@ class RightMenu(ttk.Frame, Updatable):
 
     def start_game(self):
         self.chk_ready.destroy()
-        self.frm_players.sort_players()
+        self.frm_players.start_game()
 
     def set_ready(self, ready: bool) -> None:
         if ready != (self.ready_state == "selected"):
@@ -220,7 +234,7 @@ class RightMenu(ttk.Frame, Updatable):
             self.ready_state = "selected"
         else:
             self.ready_state = "!selected"
-        self.master.messenger.send(
+        self.root.messenger.send(
             action="update_player",
             parameters={
                 "attribute": "ready",
