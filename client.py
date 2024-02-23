@@ -1,3 +1,4 @@
+import logging
 import pickle
 from typing import Any
 
@@ -12,10 +13,11 @@ class Client(Protocol):
 
     def dataReceived(self, data: bytes):
         messages = config.encoder.decode(data)
-        print(f"Received data: ")
+        log = f"Received data: \n"
         for message in messages:
             for i in message:
-                print(i)
+                log += f"{i}\n"
+            logging.debug(log)
             self.factory.messenger.parse(message)
 
     def connectionMade(self):
