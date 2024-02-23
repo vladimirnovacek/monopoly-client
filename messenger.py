@@ -26,9 +26,9 @@ class Messenger:
 
     def _message_priority(self, message):
         priority = [
-            ("events", "initialize"),
-            ("events", "player_connected"),
-            ("events", "possible_actions"),
+            ("event", "initialize"),
+            ("event", "player_connected"),
+            ("event", "possible_actions"),
         ]
         if (message["section"], message["item"]) in priority:
             return priority.index((message["section"], message["item"]))
@@ -42,9 +42,9 @@ class Messenger:
         :type message: list
         :return:
         """
-        self.message = self.organize_messages(message)
-        for event in self.message["events"]:
-            self.game.parse(section="events", item=event["item"], value=event["value"])
+        self.message = message
+        if event := self.find(section="event"):
+            self.game.parse(**event)
 
     def send(self, action: str, parameters: dict[str, Any] = None):
         if parameters is None:
@@ -55,6 +55,15 @@ class Messenger:
             "parameters": parameters
         }
         self.network.send(message)
+
+    def find(self, **kwargs) -> dict | None:
+        result = self.message[::-1]
+        for key, value in kwargs.items():
+            result = [message for message in result if message[key] == value]
+        return result[0] if result else None
+
+
+
 
     @staticmethod
     def organize_messages(messages):

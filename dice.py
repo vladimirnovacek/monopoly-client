@@ -113,5 +113,5 @@ class Dice(Updatable):
             die.animate(i)
 
     def update_value(self, section, item, attribute, value):
-        if (section, item) == ("events", "dice_roll"):
+        if (section, item) == ("event", "dice_roll"):
             self.roll(value)
