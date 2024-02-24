@@ -1,3 +1,4 @@
+import logging
 
 from twisted.internet import tksupport, reactor
 
@@ -26,4 +27,5 @@ def start():
 
 
 if __name__ == '__main__':
+    logging.basicConfig(level=logging.DEBUG)
     start()

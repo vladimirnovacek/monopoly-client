@@ -56,52 +56,37 @@ class GameWindow(tk.Tk, Updatable):
         self.right_menu.grid(row=0, column=1, sticky="nsew")
         self.grid_columnconfigure(1, weight=1)
 
-    def parse(self, **message):
+    def parse(self, message):
         logging.debug(f"Parsing event: {message['item']}")
         match message["item"]:
             case "initialize":
-                self._retrieve_board_data()
-                self._retrieve_player_data()
-                self._retrieve_misc_data()
+                self._retrieve_data()
                 for player_id in self.game_data["players"].keys():
                     self._add_player(player_id)
             case "player_updated":
-                self._update_player()
+                self._retrieve_data()
             case "player_connected":
-                self._retrieve_player_data()
+                self._retrieve_data()
                 self._add_player(message["value"])
-                self._update_player()
             case "game_started":
-                self._retrieve_player_data()
-                self._retrieve_misc_data()
-                self._update_player()
+                self._retrieve_data()
                 self.right_menu.start_game()
                 self.game_board.start_game()
 
-    def _retrieve_board_data(self):
-        for message in self.messenger.message["fields"]:
-            self.game_data.update(
-                section="fields", item=message["item"], attribute=message["attribute"], value=message["value"]
-            )
-
-    def _retrieve_player_data(self):
-        for message in self.messenger.message["players"]:
-            self.game_data.update(
-                section="players", item=message["item"], attribute=message["attribute"], value=message["value"]
-            )
-
-    def _retrieve_misc_data(self):
-        for message in self.messenger.message["misc"]:
-            self.game_data.update(
-                section="misc", item=message["item"], value=message["value"]
-            )
+    def _retrieve_data(self):
+        for message in self.messenger.message:
+            if message["section"] == "event":
+                continue
+            if "attribute" in message:
+                self.game_data.update(
+                    section=message["section"], item=message["item"], attribute=message["attribute"], value=message["value"]
+                )
+            else:
+                self.game_data.update(
+                    section=message["section"], item=message["item"], value=message["value"]
+                )
+            if message["section"] == "players":
+                self.right_menu.update_player(message["item"], message["attribute"], message["value"])
 
     def _add_player(self, player_id: int):
         self.right_menu.add_player(player_id)
-
-    def _update_player(self):
-        for message in self.messenger.message["players"]:
-            self.game_data.update(
-                section="players", item=message["item"], attribute=message["attribute"], value=message["value"]
-            )
-            self.right_menu.update_player(message["item"], message["attribute"], message["value"])

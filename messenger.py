@@ -44,7 +44,7 @@ class Messenger:
         """
         self.message = message
         if event := self.find(section="event"):
-            self.game.parse(**event)
+            self.game.parse(event)
 
     def send(self, action: str, parameters: dict[str, Any] = None):
         if parameters is None:
