@@ -76,6 +76,15 @@ class GameWindow(tk.Tk, Updatable):
                 self.game_board.dice.roll(message["value"])
                 while not self.game_board.dice.animation_over_var.get():
                     self.wait_variable(self.game_board.dice.animation_over_var)
+            case "moved":
+                for message in self.messenger.message:
+                    if message["section"] == "players" and message["attribute"] == "field":
+                        player_id = message["item"]
+                        self.game_board.move_token(
+                            player_id, self.game_data.players[player_id]["field"], message["value"]
+                        )
+                self._retrieve_data()
+
 
     def _set_ready(self, *args):
         self.ready = True
