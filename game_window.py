@@ -72,6 +72,13 @@ class GameWindow(tk.Tk, Updatable):
                 self._retrieve_data()
                 self.right_menu.start_game()
                 self.game_board.start_game()
+            case "roll":
+                self.game_board.dice.roll(message["value"])
+                while not self.game_board.dice.animation_over_var.get():
+                    self.wait_variable(self.game_board.dice.animation_over_var)
+
+    def _set_ready(self, *args):
+        self.ready = True
 
     def _retrieve_data(self):
         for message in self.messenger.message:

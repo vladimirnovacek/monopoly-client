@@ -41,24 +41,22 @@ class Dice(Updatable):
 
         def animate(self, value: int, iteration: int = 0, number_of_rotations: int = 0) -> None:
             """
-             Provede animaci hodu kostkou. Výsledek hodu je předem dán v
-            parametru value. Parametry iteration a number_of_rotations se při
-            volání nezadávají.
-
-            :param value: Hodnota, která se zobrazí na konci animace
-            :param iteration: Počet dosud proběhlých iterací animace.
-             Při volání se nezadává!
-            :param number_of_rotations: Celkový počet otočení strany kostky.
-             Při volání se nezadává!
-
-
+            Performs a dice roll animation. The result of the roll is given
+            in the value parameter. The iteration and number_of_rotations
+            parameters are not specified during the call.
+            :param value: The value to display at the end of the animation
+            :param event:
+            :param iteration: The number of iterations of the animation so far.
+            It is not entered when calling!
+            :param number_of_rotations: Total number of rotations of a side of the cube.
+            It is not entered when calling!
             """
-            self.animation_over = False
 
             def get_random_number() -> int:
                 rnd = random.randint(1, 6)
                 return rnd if rnd != self.displayed_value else \
                     get_random_number()
+
             delay, rotations_min, rotations_max = 100, 15, 30
             if number_of_rotations == 0:
                 number_of_rotations = random.randint(
@@ -72,7 +70,6 @@ class Dice(Updatable):
                         value, iteration + 1, number_of_rotations))
             else:
                 self.display_value(value)
-                self.animation_over = True
                 self.animation_over_var.set(True)
 
 
@@ -109,9 +106,6 @@ class Dice(Updatable):
             die.display_value(i)
 
     def roll(self, values: tuple[int, int]):
+        self.animation_over_var.set(False)
         for i, die in zip(values, self.dice):
             die.animate(i)
-
-    def update_value(self, section, item, attribute, value):
-        if (section, item) == ("event", "dice_roll"):
-            self.roll(value)
