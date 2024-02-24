@@ -13,8 +13,8 @@ class Client(Protocol):
 
     def dataReceived(self, data: bytes):
         messages = config.encoder.decode(data)
-        log = f"Received data: \n"
         for message in messages:
+            log = f"Received data: \n"
             for i in message:
                 log += f"{i}\n"
             logging.debug(log)
@@ -24,7 +24,7 @@ class Client(Protocol):
         self.factory.messenger.network = self
 
     def send(self, message: Any):
-        print(f"Sending data: {message}")
+        logging.debug(f"Sending data: {message}")
         # noinspection PyArgumentList
         self.transport.write(config.encoder.encode(message))
 
