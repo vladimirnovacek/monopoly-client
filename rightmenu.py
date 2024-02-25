@@ -138,8 +138,6 @@ class PlayerFrame(ttk.Frame):
         self._set_token()
 
     def start_game(self) -> None:
-        self.destroy_arrows()
-        self.name.configure(state="disabled")
         if self.player_id == self.root.game_data.misc["on_turn"]:
             self.name.configure(style="Highlighted.TEntry")
         else:
