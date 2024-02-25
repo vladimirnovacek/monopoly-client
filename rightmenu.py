@@ -137,7 +137,7 @@ class PlayerFrame(ttk.Frame):
                 self.selected_token_id = 0
         self._set_token()
 
-    def start_game(self) -> None:
+    def begin_turn(self) -> None:
         if self.player_id == self.root.game_data.misc["on_turn"]:
             self.name.configure(style="Highlighted.TEntry")
         else:
@@ -181,8 +181,8 @@ class PlayersFrame(ttk.Frame):
     def update_player(self, player_id, attribute, value) -> None:
         self.players[player_id].update_player(attribute, value)
 
-    def start_game(self):
         self.sort_players()
+    def begin_turn(self):
         for frame in self.players:
             frame.start_game()
 
