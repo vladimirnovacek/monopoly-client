@@ -181,10 +181,9 @@ class PlayersFrame(ttk.Frame):
     def update_player(self, player_id, attribute, value) -> None:
         self.players[player_id].update_player(attribute, value)
 
-        self.sort_players()
     def begin_turn(self):
         for frame in self.players:
-            frame.start_game()
+            frame.begin_turn()
 
     def sort_players(self):
         for order, player_id in enumerate(self.root.game_data.misc["player_order"]):
@@ -229,8 +228,10 @@ class RightMenu(ttk.Frame, Updatable):
         self.frm_players.update_player(player_id, attribute, value)
 
     def start_game(self):
-        self.chk_ready.destroy()
-        self.frm_players.start_game()
+        self.frm_players.sort_players()
+
+    def begin_turn(self):
+        self.frm_players.begin_turn()
 
     def set_ready(self, ready: bool) -> None:
         if ready != (self.ready_state == "selected"):
