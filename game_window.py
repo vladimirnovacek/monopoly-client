@@ -73,6 +73,10 @@ class GameWindow(tk.Tk, Updatable):
                 self._retrieve_data()
                 self.right_menu.start_game()
                 self.game_board.start_game()
+            case "begin_turn":
+                self._retrieve_data()
+                self.right_menu.begin_turn()
+                self.game_board.begin_turn()
             case "roll":
                 roll = self.messenger.find(section="misc", item="roll")["value"]
                 self.game_board.dice.roll(roll)
