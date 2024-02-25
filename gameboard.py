@@ -59,7 +59,6 @@ class GameBoard(tk.Canvas):
             x, y = self.field_coordinates[player["field"]]
             token_id = self.create_image(x, y, anchor=tk.CENTER, image=token)
             self.tokens[player_id] = token_id
-            self.begin_turn()
 
     def begin_turn(self):
         if self.root.game_data.get_id() == self.root.game_data.misc["on_turn"]:
