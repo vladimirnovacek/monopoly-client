@@ -67,7 +67,8 @@ class GameWindow(tk.Tk, Updatable):
                 self._retrieve_data()
             case "player_connected":
                 self._retrieve_data()
-                self._add_player(message["value"])
+                player_id = self.messenger.find(section="players")["item"]
+                self._add_player(player_id)
             case "game_started":
                 self._retrieve_data()
                 self.right_menu.start_game()
