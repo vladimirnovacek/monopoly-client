@@ -61,16 +61,3 @@ class Messenger:
         for key, value in kwargs.items():
             result = [message for message in result if message[key] == value]
         return result[0] if result else None
-
-
-
-
-    @staticmethod
-    def organize_messages(messages):
-        sorted_messages = {}
-        for message in messages:
-            section = message.pop("section")
-            if section not in sorted_messages:
-                sorted_messages[section] = []
-            sorted_messages[section].append(message)
-        return sorted_messages
