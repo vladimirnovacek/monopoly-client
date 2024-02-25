@@ -38,12 +38,20 @@ class GameBoard(tk.Canvas):
 
         self.field_coordinates = config.field_coordinates
 
+        self._controls = {"roll": self.dice}
         # self.card: dict[str, Card | PropertyCard] = {
         #     "chance_cc": ChanceCcCard(self),
         #     "street": StreetCard(self),
         #     "railroad": RailroadCard(self),
         #     "utility": UtilityCard(self)
         # }
+
+    def set_control_states(self):
+        for action, control in self._controls.items():
+            if action in self.root.game_data.misc["possible_actions"]:
+                control.activate()
+            else:
+                control.deactivate()
 
     def start_game(self):
         for player_id, player in self.master.game_data.players.items():

@@ -7,15 +7,15 @@ from tkinter import BooleanVar
 from PIL import ImageTk, Image
 
 import config
-from interfaces import Updatable
+from interfaces import Control
 
 if typing.TYPE_CHECKING:
     from gameboard import GameBoard
 
 
-class Dice(Updatable):
+class Dice(Control):
 
-    class Die:
+    class Die(Control):
         images: list[ImageTk.PhotoImage]
 
         def __init__(self, master: "GameBoard", location: tuple[int, int]) -> None:
@@ -25,6 +25,15 @@ class Dice(Updatable):
             self.animation_over = True
             self.animation_over_var = BooleanVar()
             self.displayed_value = 6
+
+        def activate(self):
+            if self.canvas_id == -1:
+                self.draw()
+            self.master.itemconfigure(self.canvas_id, state="normal")
+
+        def deactivate(self):
+            if self.canvas_id != -1:
+                self.master.itemconfigure(self.canvas_id, state="hidden")
 
         def draw(self) -> None:
             if self.canvas_id == -1:
@@ -45,7 +54,6 @@ class Dice(Updatable):
             in the value parameter. The iteration and number_of_rotations
             parameters are not specified during the call.
             :param value: The value to display at the end of the animation
-            :param event:
             :param iteration: The number of iterations of the animation so far.
             It is not entered when calling!
             :param number_of_rotations: Total number of rotations of a side of the cube.
@@ -109,3 +117,11 @@ class Dice(Updatable):
         self.animation_over_var.set(False)
         for i, die in zip(values, self.dice):
             die.animate(i)
+
+    def activate(self) -> None:
+        for die in self.dice:
+            die.activate()
+
+    def deactivate(self) -> None:
+        for die in self.dice:
+            die.deactivate()

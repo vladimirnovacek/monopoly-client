@@ -24,6 +24,7 @@ class Misc(TypedDict, total=False):
     my_id: int
     my_uuid: UUID
     player_order: list[int]
+    possible_actions: list
 
 
 class GameData:

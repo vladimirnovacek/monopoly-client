@@ -145,6 +145,13 @@ class PlayerFrame(ttk.Frame):
         else:
             self.name.configure(style="NotHighlighted.TEntry")
 
+    def set_control_states(self) -> None:
+        if "update_player" in self.root.game_data.misc["possible_actions"]:
+            self.name.configure(state="normal")
+        else:
+            self.name.configure(state="disabled")
+            self.destroy_arrows()
+
     def _set_token(self):
         self.token.configure(image=self.root.tokens[self.selected_token_id])
         self.root.right_menu.set_ready(False)
@@ -185,6 +192,9 @@ class PlayersFrame(ttk.Frame):
         for order, player_id in enumerate(self.root.game_data.misc["player_order"]):
             self.players[player_id].grid(row=order // 2, column=order % 2, sticky="news")
 
+    def set_control_states(self):
+        for frame in self.players:
+            frame.set_control_states()
 
 class RightMenu(ttk.Frame, Updatable):
 
@@ -228,6 +238,17 @@ class RightMenu(ttk.Frame, Updatable):
         if ready != (self.ready_state == "selected"):
             self.chk_ready.state(["selected" if ready else "!selected"])
             self._chk_ready_clicked()
+
+    def set_control_states(self):
+        self.frm_players.set_control_states()
+        if "update_player" in self.root.game_data.misc["possible_actions"]:
+            self.chk_ready.pack(side=tk.LEFT)
+        else:
+            self.chk_ready.pack_forget()
+        if "end_turn" in self.root.game_data.misc["possible_actions"]:
+            self.btn_end_turn.configure(state=tk.NORMAL)
+        else:
+            self.btn_end_turn.configure(state=tk.DISABLED)
 
     def _chk_ready_clicked(self):
         if self.chk_ready.instate(['selected']):

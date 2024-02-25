@@ -37,6 +37,16 @@ class Conditions:
             self.method(**kwargs)
 
 
+class Control(ABC):
+    @abstractmethod
+    def activate(self):
+        ...
+
+    @abstractmethod
+    def deactivate(self):
+        ...
+
+
 class Updatable:
 
     subclasses: set["Updatable"] = set()

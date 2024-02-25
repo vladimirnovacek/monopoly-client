@@ -84,7 +84,13 @@ class GameWindow(tk.Tk, Updatable):
                             player_id, self.game_data.players[player_id]["field"], message["value"]
                         )
                 self._retrieve_data()
+        self._set_control_states()
 
+    def _set_control_states(self):
+        if "possible_actions" not in self.game_data.misc:
+            return
+        self.right_menu.set_control_states()
+        self.game_board.set_control_states()
 
     def _set_ready(self, *args):
         self.ready = True
