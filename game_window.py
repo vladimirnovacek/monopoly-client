@@ -74,7 +74,8 @@ class GameWindow(tk.Tk, Updatable):
                 self.right_menu.start_game()
                 self.game_board.start_game()
             case "roll":
-                self.game_board.dice.roll(message["value"])
+                roll = self.messenger.find(section="misc", item="roll")["value"]
+                self.game_board.dice.roll(roll)
                 while not self.game_board.dice.animation_over_var.get():
                     self.wait_variable(self.game_board.dice.animation_over_var)
             case "moved":
