@@ -19,7 +19,7 @@ class Client(Protocol):
             log = f"Received data: \n"
             for i in message:
                 log += f"{i}\n"
-            logging.debug(log)
+            logging.debug(log[:-2])
             self.factory.messenger.parse(message)
 
     def connectionMade(self):
