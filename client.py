@@ -14,8 +14,6 @@ class Client(Protocol):
     def dataReceived(self, data: bytes):
         messages = config.encoder.decode(data)
         for message in messages:
-            # with open("messages.txt", "a") as f:
-            #     f.write(f"{message}\n")
             log = f"Received data: \n"
             for i in message:
                 log += f"{i}\n"
