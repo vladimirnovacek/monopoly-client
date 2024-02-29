@@ -5,6 +5,7 @@ import logging
 import os
 import tkinter as tk
 from tkinter import ttk
+from typing import Iterable
 
 from PIL import ImageTk, Image
 
@@ -93,13 +94,13 @@ class GameWindow(tk.Tk, Updatable):
                 self._retrieve_data()
             case "buying_decision":
                 self._retrieve_data()
-                my_id = self.game_data.misc["my_id"]
-                field_id = self.game_data.players[my_id]["field"]
+                player_id = self.game_data.misc["on_turn"]
+                field_id = self.game_data.players[player_id]["field"]
                 field = self.game_data.fields[field_id]
                 if "buy" in self.game_data.misc["possible_actions"]:
-                    self._show_dialog(BuyDialog, field, True)
+                    self._show_dialog(BuyDialog, field)
                 else:
-                    self._show_dialog(BuyDialog, field, False)
+                    self._show_dialog(BuyDialog, field, ())
             case "property_bought":
                 self._retrieve_data()
 
@@ -111,11 +112,10 @@ class GameWindow(tk.Tk, Updatable):
             return
         self.right_menu.set_control_states()
 
-    def _show_dialog(self, dialog_class: type[BuyDialog], field: Field, show_options: bool = False):
-        self.dialog: BuyDialog = dialog_class(self.game_board, field)
+    def _show_dialog(self, dialog_class: type[BuyDialog], field: Field, options: Iterable = ("buy", "auction")):
+        self.dialog: BuyDialog = dialog_class(self.game_board, field, options)
         self.dialog.place(relx=0.5, rely=0.4, anchor="center")
-        if show_options:
-            self.dialog.show()
+        self.dialog.show()
 
     def _set_ready(self, *args):
         self.ready = True
