@@ -101,6 +101,8 @@ class PlayerFrame(ttk.Frame):
                     self.token.configure(image=self.root.not_selected_token)
                 elif self.selected_token_id == -1 or value != config.tokens[self.selected_token_id]:
                     self.token.configure(image=self.root.tokens[config.tokens.index(value)])
+            case "cash":
+                self.cash.configure(text=value)
 
 
     def destroy_arrows(self):
