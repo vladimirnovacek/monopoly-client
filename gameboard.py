@@ -53,7 +53,7 @@ class GameBoard(tk.Canvas):
             self.tokens[player_id] = token_id
 
     def begin_turn(self):
-        if self.root.game_data.get_id() == self.root.game_data.misc["on_turn"]:
+        if self.root.game_data.my_id == self.root.game_data.misc["on_turn"]:
             self.tag_bind("dice", "<Button-1>", self._roll)
         else:
             self.tag_unbind("dice", "<Button-1>")

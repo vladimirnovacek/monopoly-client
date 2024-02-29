@@ -73,7 +73,7 @@ class PlayerFrame(ttk.Frame):
         for attribute in ("name", "token", "ready"):
             if attribute in self.root.game_data.players[self.player_id]:
                 self.update_player(attribute, self.root.game_data.players[self.player_id][attribute])
-        if self.player_id == self.root.game_data.get_id():
+        if self.player_id == self.root.game_data.my_id:
             self.name.configure(state="normal")
             if show_arrows:
                 self.left_arrow.grid(row=2, column=0)

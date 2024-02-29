@@ -44,7 +44,7 @@ class Messenger:
         """
         self.message = message
         # TESTING PURPOSES ONLY, REMOVE LATER
-        if self.game.game_data.get_id() in (-1, 0):
+        if self.game.game_data.my_id in (-1, 0):
             with open("messages.txt", "a") as f:
                 f.write(f"{message}\n")
         # END OF TESTING BLOCK
