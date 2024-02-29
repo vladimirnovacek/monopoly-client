@@ -64,25 +64,34 @@ class GameWindow(tk.Tk, Updatable):
                 self._retrieve_data()
                 for player_id in self.game_data["players"].keys():
                     self._add_player(player_id)
+                self.right_menu.update_game_log("Welcome to Monopoly!")
             case "player_updated":
                 self._retrieve_data()
             case "player_connected":
                 self._retrieve_data()
                 player_id = self.messenger.find(section="players")["item"]
                 self._add_player(player_id)
+                self.right_menu.update_game_log(f"{self.game_data.players[player_id]['name']} connected.")
             case "game_started":
                 self._retrieve_data()
                 self.right_menu.start_game()
                 self.game_board.start_game()
+                self.right_menu.update_game_log("Game started.")
             case "begin_turn":
                 self._retrieve_data()
                 self.right_menu.begin_turn()
                 self.game_board.begin_turn()
+                self.right_menu.update_game_log(
+                    f"{self.game_data.on_turn_player['name']}'s turn."
+                )
             case "roll":
                 roll = self.messenger.find(section="misc", item="roll")["value"]
                 self.game_board.dice.roll(roll)
                 while not self.game_board.dice.animation_over_var.get():
                     self.wait_variable(self.game_board.dice.animation_over_var)
+                self.right_menu.update_game_log(
+                    f"{self.game_data.on_turn_player['name']} rolled {roll[0]} and {roll[1]}."
+                )
             case "moved":
                 for message in self.messenger.message:
                     if message["section"] == "players" and message["attribute"] == "field":
@@ -91,6 +100,18 @@ class GameWindow(tk.Tk, Updatable):
                             player_id, self.game_data.players[player_id]["field"], message["value"]
                         )
                 self._retrieve_data()
+                field = self.game_data.fields[message["value"]]
+                own = owned_by = ""
+                if field["type"] in ("street", "utility", "railroad"):
+                    if "owner" in field and field["owner"] is not None:
+                        if field["owner"] == message["item"]:
+                            own = "own "
+                        elif field["owner"] == self.game_data.my_id:
+                            owned_by = " owned by you"
+                        else:
+                            owned_by = f" owned by {self.game_data.players[field['owner']]['name']}"
+                log = f"{self.game_data.players[player_id]['name']} landed on {own}{field['name']}{owned_by}."
+                self.right_menu.update_game_log(log)
             case "buying_decision":
                 self._retrieve_data()
                 player_id = self.game_data.misc["on_turn"]

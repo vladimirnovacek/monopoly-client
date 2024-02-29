@@ -227,6 +227,12 @@ class RightMenu(ttk.Frame, Updatable):
     def update_player(self, player_id, attribute, value):
         self.frm_players.update_player(player_id, attribute, value)
 
+    def update_game_log(self, message):
+        self.txt_game_log.configure(state=tk.NORMAL)
+        self.txt_game_log.insert(tk.END, message + "\n")
+        self.txt_game_log.see(tk.END)
+        self.txt_game_log.configure(state=tk.DISABLED)
+
     def start_game(self):
         self.frm_players.sort_players()
 
