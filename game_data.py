@@ -3,8 +3,9 @@ from typing import TypedDict, Any, overload
 from uuid import UUID
 
 
-class Field(TypedDict):
+class Field(TypedDict, total=False):
     field_id: int
+    type: str
     owner: int
 
 
