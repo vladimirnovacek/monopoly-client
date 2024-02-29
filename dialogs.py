@@ -4,8 +4,7 @@ from abc import ABC
 from enum import Enum
 import tkinter as tk
 import tkinter.font as tkfont
-from tkinter import ttk
-from typing import Iterable
+from string import Template
 
 import config
 from game_data import Field
@@ -99,7 +98,7 @@ class Card(ABC):
         y += self.y
         return x, y
 
-    def _dimensions(self, x, y, width, height) -> tuple:
+    def _dimensions(self, x, y, width, height) -> tuple[int, int, int, int]:
         """
         Převede rozměry z formátu x, y, šířka, výška do formátu x1, y1, x2, y2,
         kde x1, y1 jsou souřadnice levného horního rohu a x2, y2 pravého
@@ -210,6 +209,185 @@ class PropertyCard(Card):
     def _hide(self, event: tk.Event):
         self.canvas.tag_unbind(self.tags[0], "<Button-1>")
         self.canvas.itemconfigure(self.tags[0], state=tk.HIDDEN)
+
+
+class UtilityCard(PropertyCard):
+
+    TAG = "utility_card"
+
+    def __init__(self, canvas: tk.Canvas):
+        super().__init__(canvas)
+        self.tags.append(self.TAG)
+        self.images: dict[str, tk.PhotoImage] = {
+            "electric_company": tk.PhotoImage(file=os.path.join(
+                config.path_cards, "electric_company.png"
+            )),
+            "water_works": tk.PhotoImage(file=os.path.join(
+                config.path_cards, "water_works.png"
+            )),
+        }
+        self._pos |= {
+            "image": (78, 8),
+            "name": (78, 92),
+            "paragraph_1": (78, 130),
+            "paragraph_2": (78, 180)
+        }
+        self._text |= {
+            "paragraph_1": "If one Utility is owned, rent is 4 times amount "
+                           "shown on dice.",
+            "paragraph_2": "If both Utilities are owned, rent is 10 times "
+                           "amount shown on dice."
+        }
+
+    def _set_info(self, data):
+        necessary_keys = (
+            "name", "price", "rent", "rent_2"
+        )
+        assert all(key in data for key in necessary_keys)
+        self.card_data = data
+
+    def _get_image(self):
+        if self.card_data["index"] == "utility_1":
+            image = "electric_company"
+        elif self.card_data["index"] == "utility_2":
+            image = "water_works"
+        else:
+            raise ValueError(f"Incorrect field index {self.card_data['index']}")
+        return self.images[image]
+
+    def paint(self):
+        self.ids["card"] = self.canvas.create_rectangle(
+            self._dimensions(*self.pos_dim["card"]), fill="white"
+        )
+        self.ids["frame"] = self.canvas.create_rectangle(
+            self._dimensions(*self.pos_dim["card_frame"])
+        )
+        self.ids["image"] = self.canvas.create_image(
+            self._position(*self._pos["image"]),
+            image=self._get_image(), anchor=tk.N)
+        self.ids["name"] = self.canvas.create_text(
+            self._position(*self._pos["name"]), anchor=tk.N, justify=tk.CENTER,
+            font=self.font["title"], text=self.card_data["name"].upper(),
+            width=self._dim["card_frame"][0] - 6
+        )
+        self.ids["paragraph_1"] = self.canvas.create_text(
+            self._position(*self._pos["paragraph_1"]), anchor=tk.N,
+            text=self._text["paragraph_1"], font=self.font["text"],
+            width=self._dim["card_frame"][0] - 6, justify=tk.CENTER
+        )
+        self.ids["paragraph_2"] = self.canvas.create_text(
+            self._position(*self._pos["paragraph_2"]), anchor=tk.N,
+            text=self._text["paragraph_2"], font=self.font["text"],
+            width=self._dim["card_frame"][0] - 6, justify=tk.CENTER
+        )
+        for elem in self.ids.values():
+            self.add_all_tags(elem)
+
+
+class RailroadCard(PropertyCard):
+
+    TAG = "railroad_card"
+
+    def __init__(self, canvas: tk.Canvas):
+        super().__init__(canvas)
+        self.tags.append(self.TAG)
+        self.images: dict[str, tk.PhotoImage] = {}
+        self._pos |= {
+            "image": (78, 8),
+            "name": (78, 92),
+            "rent_left": (6, 140),
+            "rent_right": (151, 140),
+            "rent_2_left": (6, 160),
+            "rent_2_right": (151, 160),
+            "rent_3_left": (6, 180),
+            "rent_3_right": (151, 180),
+            "rent_4_left": (6, 200),
+            "rent_4_right": (151, 200)
+        }
+        self._text |= {
+            "rent": "RENT",
+            "rent_2": Template("If $n railroads are owned")
+        }
+
+    def _set_info(self, data):
+        necessary_keys = (
+            "name", "price", "rent", "rent_2", "rent_3", "rent_4"
+        )
+        assert all(key in data for key in necessary_keys)
+        self.card_data = data
+
+    def paint(self):
+        self.images["train"] = tk.PhotoImage(file=os.path.join(
+            config.path_cards, "train.png"
+        ))
+        self.ids["card"] = self.canvas.create_rectangle(
+            self._dimensions(*self.pos_dim["card"]), fill="white"
+        )
+        self.ids["frame"] = self.canvas.create_rectangle(
+            self._dimensions(*self.pos_dim["card_frame"])
+        )
+        self.ids["image"] = self.canvas.create_image(
+            self._position(*self._pos["image"]),
+            image=self.images["train"], anchor=tk.N)
+        self.ids["name"] = self.canvas.create_text(
+            self._position(*self._pos["name"]), anchor=tk.N, justify=tk.CENTER,
+            font=self.font["title"], text=self.card_data["name"].upper(),
+            width=self._dim["card_frame"][0] - 6
+        )
+        self.ids["rent_left"] = self.canvas.create_text(
+            self._position(*self._pos["rent_left"]), anchor=tk.NW,
+            font=self.font["text_2"], text=self._text["rent"]
+        )
+        self.ids["rent_right"] = self.canvas.create_text(
+            self._position(*self._pos["rent_right"]), anchor=tk.NE,
+            font=self.font["text_2"], text=f"£{self.card_data['rent']}"
+        )
+        self.ids["rent_2_left"] = self.canvas.create_text(
+            self._position(*self._pos["rent_2_left"]), anchor=tk.NW,
+            font=self.font["text_2"], text=self._text["rent_2"].substitute(n=2)
+        )
+        self.ids["rent_2_right"] = self.canvas.create_text(
+            self._position(*self._pos["rent_2_right"]), anchor=tk.NE,
+            font=self.font["text_2"], text=f"£{self.card_data['rent_2']}"
+        )
+        self.ids["rent_3_left"] = self.canvas.create_text(
+            self._position(*self._pos["rent_3_left"]), anchor=tk.NW,
+            font=self.font["text_2"], text=self._text["rent_2"].substitute(n=3)
+        )
+        self.ids["rent_3_right"] = self.canvas.create_text(
+            self._position(*self._pos["rent_3_right"]), anchor=tk.NE,
+            font=self.font["text_2"], text=f"£{self.card_data['rent_3']}"
+        )
+        self.ids["rent_4_left"] = self.canvas.create_text(
+            self._position(*self._pos["rent_4_left"]), anchor=tk.NW,
+            font=self.font["text_2"], text=self._text["rent_2"].substitute(n=4)
+        )
+        self.ids["rent_4_right"] = self.canvas.create_text(
+            self._position(*self._pos["rent_4_right"]), anchor=tk.NE,
+            font=self.font["text_2"], text=f"£{self.card_data['rent_4']}"
+        )
+
+        for elem in self.ids.values():
+            self.add_all_tags(elem)
+
+    def repaint(self):
+        print(self.card_data)
+        self.canvas.itemconfigure(
+            self.ids["name"], text=self.card_data["name"].upper()
+        )
+        self.canvas.itemconfigure(
+            self.ids["rent_right"], text=f"£{self.card_data['rent']}"
+        )
+        self.canvas.itemconfigure(
+            self.ids["rent_2_right"], text=f"£{self.card_data['rent_2']}"
+        )
+        self.canvas.itemconfigure(
+            self.ids["rent_3_right"], text=f"£{self.card_data['rent_3']}"
+        )
+        self.canvas.itemconfigure(
+            self.ids["rent_4_right"], text=f"£{self.card_data['rent_4']}"
+        )
+        self.canvas.itemconfigure(self.TAG, state=tk.NORMAL)
 
 
 class StreetCard(PropertyCard):
@@ -433,6 +611,10 @@ class BuyDialog(tk.Canvas):
         self.field = field
         if self.field["type"] == "street":
             self.card = StreetCard(self)
+        elif self.field["type"] == "utility":
+            self.card = UtilityCard(self)
+        elif self.field["type"] == "railroad":
+            self.card = RailroadCard(self)
         self.width = self.card.dimensions[0] * (1 + len(options) / 2)
         self.height = self.card.dimensions[1]
         self.card.x = self.width // 4 if "buy" in options else 0
