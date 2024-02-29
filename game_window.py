@@ -5,7 +5,6 @@ import logging
 import os
 import tkinter as tk
 from tkinter import ttk
-from typing import Iterable
 
 from PIL import ImageTk, Image
 
@@ -103,6 +102,11 @@ class GameWindow(tk.Tk, Updatable):
                     self._show_dialog(BuyDialog, field, ())
             case "property_bought":
                 self._retrieve_data()
+                self.dialog.show_sold()
+                self.dialog.destroy()
+            case "auction":
+                self._retrieve_data()
+                self.dialog.destroy()
 
         if self.messenger.find(section="misc", item="possible_actions") is not None:
             self._set_control_states()
@@ -112,7 +116,7 @@ class GameWindow(tk.Tk, Updatable):
             return
         self.right_menu.set_control_states()
 
-    def _show_dialog(self, dialog_class: type[BuyDialog], field: Field, options: Iterable = ("buy", "auction")):
+    def _show_dialog(self, dialog_class: type[BuyDialog], field: Field, options: tuple = ("buy", "auction")):
         self.dialog: BuyDialog = dialog_class(self.game_board, field, options)
         self.dialog.place(relx=0.5, rely=0.4, anchor="center")
         self.dialog.show()
@@ -124,14 +128,7 @@ class GameWindow(tk.Tk, Updatable):
         for message in self.messenger.message:
             if message["section"] == "event":
                 continue
-            if "attribute" in message:
-                self.game_data.update(
-                    section=message["section"], item=message["item"], attribute=message["attribute"], value=message["value"]
-                )
-            else:
-                self.game_data.update(
-                    section=message["section"], item=message["item"], value=message["value"]
-                )
+            self.game_data.update(**message)
             if message["section"] == "players":
                 self.right_menu.update_player(message["item"], message["attribute"], message["value"])
 

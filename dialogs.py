@@ -427,15 +427,15 @@ class StreetCard(PropertyCard):
 
 
 class BuyDialog(tk.Canvas):
-    def __init__(self, master, field: Field, options: Iterable[str] = ("buy", "auction")):
+    def __init__(self, master, field: Field, options: tuple[str] = ("buy", "auction")):
         super().__init__(master)
         self.root = self.winfo_toplevel()
         self.field = field
         if self.field["type"] == "street":
             self.card = StreetCard(self)
-        self.width = self.card.dimensions[0] * 2
+        self.width = self.card.dimensions[0] * (1 + len(options) / 2)
         self.height = self.card.dimensions[1]
-        self.card.x = self.width // 4
+        self.card.x = self.width // 4 if "buy" in options else 0
         self.configure(width=self.width, height=self.height)
         self.options = options
 
@@ -460,13 +460,13 @@ class BuyDialog(tk.Canvas):
             )
             self.tag_bind("auction", "<Button-1>", self._auction)
 
-    def _buy(self, *args):
+    def show_sold(self):
         self.card.sold()
         self.update()
         time.sleep(2)
+
+    def _buy(self, *args):
         self.root.messenger.send("buy")
-        self.destroy()
 
     def _auction(self, *args):
         self.root.messenger.send("auction")
-        self.destroy()
