@@ -7,33 +7,22 @@ from tkinter import BooleanVar
 from PIL import ImageTk, Image
 
 import config
-from interfaces import Control
 
 if typing.TYPE_CHECKING:
     from gameboard import GameBoard
 
 
-class Dice(Control):
+class Dice:
 
-    class Die(Control):
+    class Die:
         images: list[ImageTk.PhotoImage]
 
         def __init__(self, master: "GameBoard", location: tuple[int, int]) -> None:
             self.master: GameBoard = master
             self.canvas_id = -1
             self.location = location
-            self.animation_over = True
             self.animation_over_var = BooleanVar()
             self.displayed_value = 6
-
-        def activate(self):
-            if self.canvas_id == -1:
-                self.draw()
-            self.master.itemconfigure(self.canvas_id, state="normal")
-
-        def deactivate(self):
-            if self.canvas_id != -1:
-                self.master.itemconfigure(self.canvas_id, state="hidden")
 
         def draw(self) -> None:
             if self.canvas_id == -1:
@@ -101,10 +90,6 @@ class Dice(Control):
             for die in self.dice:
                 die.animation_over_var.set(False)
 
-    @property
-    def animation_over(self):
-        return all(die.animation_over for die in self.dice)
-
     def draw(self) -> None:
         for die in self.dice:
             die.draw()
@@ -117,11 +102,3 @@ class Dice(Control):
         self.animation_over_var.set(False)
         for i, die in zip(values, self.dice):
             die.animate(i)
-
-    def activate(self) -> None:
-        for die in self.dice:
-            die.activate()
-
-    def deactivate(self) -> None:
-        for die in self.dice:
-            die.deactivate()
