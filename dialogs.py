@@ -1,4 +1,5 @@
 import os
+import time
 from abc import ABC
 from enum import Enum
 import tkinter as tk
@@ -146,9 +147,6 @@ class PropertyCard(Card):
         self.buy: tk.BooleanVar = tk.BooleanVar(self.canvas)
         self.tags.append("property_card")
 
-    def do_nothing(self):
-        pass
-
     def rent_dialog(self, player_name: str, rent: str):
         self.ids["rent_text"] = self.canvas.create_text(
             self._position(*self._pos["question"]),
@@ -180,12 +178,12 @@ class PropertyCard(Card):
         self.add_tag_and_below("buy_dialog", PropertyCard.TAG)
         self.canvas.wait_variable(self.buy)
         if self.buy.get():
-            self._sold()
+            self.sold()
         self.canvas.itemconfigure("buy_dialog", state=tk.HIDDEN)
         self.canvas.tag_bind(self.tags[0], "<Button-1>", self._hide)
         return self.buy.get()
 
-    def _sold(self) -> None:
+    def sold(self) -> None:
         if "sold" in self.ids.keys():
             self.canvas.itemconfigure(self.ids["sold"], state=tk.NORMAL)
         else:
@@ -429,7 +427,7 @@ class StreetCard(PropertyCard):
 
 
 class BuyDialog(tk.Canvas):
-    def __init__(self, master, field: Field):
+    def __init__(self, master, field: Field, options: Iterable[str] = ("buy", "auction")):
         super().__init__(master)
         self.root = self.winfo_toplevel()
         self.field = field
@@ -439,21 +437,22 @@ class BuyDialog(tk.Canvas):
         self.height = self.card.dimensions[1]
         self.card.x = self.width // 4
         self.configure(width=self.width, height=self.height)
+        self.options = options
 
-    def show(self, options: bool = True):
+    def show(self):
         self.card.show_card(self.field)
-        if options:
+        if self.options:
             self.show_options()
 
-    def show_options(self, options: Iterable[str] = ("buy", "auction")):
-        if "buy" in options:
+    def show_options(self):
+        if "buy" in self.options:
             self.create_rectangle(0, 0, self.width // 4, self.height, fill="green1", tags="buy")
             self.create_text(
                 self.width // 8, self.height // 2,
                 angle=90, text="Buy", anchor=tk.CENTER, font=self.card.font["title"], tags="buy"
             )
             self.tag_bind("buy", "<Button-1>", self._buy)
-        if "auction" in options:
+        if "auction" in self.options:
             self.create_rectangle(self.width * 3 // 4, 0, self.width, self.height, fill="red2", tags="auction")
             self.create_text(
                 self.width * 7 // 8, self.height // 2,
@@ -462,6 +461,9 @@ class BuyDialog(tk.Canvas):
             self.tag_bind("auction", "<Button-1>", self._auction)
 
     def _buy(self, *args):
+        self.card.sold()
+        self.update()
+        time.sleep(2)
         self.root.messenger.send("buy")
         self.destroy()
 
