@@ -7,6 +7,7 @@ class Field(TypedDict, total=False):
     field_id: int
     type: str
     owner: int
+    name: str
 
 
 class Player(TypedDict, total=False):
@@ -45,12 +46,16 @@ class GameData:
         return f"{self.__class__.__name__}({self.__dict__})"
 
     @property
-    def on_turn(self) -> bool:
-        if "on_turn" not in self.misc or "my_id" not in self.misc:
-            return False
-        if self.misc["on_turn"] == self.misc["my_id"]:
-            return True
-        return False
+    def on_turn_player(self) -> Player | None:
+        if "on_turn" in self.misc:
+            return self.players[self.misc["on_turn"]]
+        return None
+
+    @property
+    def my_id(self) -> int:
+        if "my_id" not in self.misc:
+            return -1
+        return self.misc["my_id"]
 
     @overload
     def update(self, *, section: str, item: str | int, value: Any):
@@ -77,11 +82,6 @@ class GameData:
             self[section][item][attribute] = value
         else:
             self[section][item] = value
-
-    def get_id(self) -> int:
-        if "my_id" not in self.misc:
-            return -1
-        return self.misc["my_id"]
 
     def get_uuid(self) -> UUID | None:
         if "my_uuid" not in self.misc:
