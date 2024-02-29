@@ -16,6 +16,7 @@ tokens = [
 # PATHS
 path_images = "resources"
 path_tokens = "resources/tokens"
+path_cards = "resources/cards"
 
 # BOARD INFORMATIONS
 board_size = {"width": 600, "height": 600}

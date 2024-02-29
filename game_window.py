@@ -9,10 +9,11 @@ from tkinter import ttk
 from PIL import ImageTk, Image
 
 import config
+from dialogs import BuyDialog
 from interfaces import Updatable
 from gameboard import GameBoard
 
-from game_data import GameData
+from game_data import GameData, Field
 from messenger import Messenger
 from rightmenu import RightMenu
 
@@ -90,13 +91,31 @@ class GameWindow(tk.Tk, Updatable):
                             player_id, self.game_data.players[player_id]["field"], message["value"]
                         )
                 self._retrieve_data()
-        self._set_control_states()
+            case "buying_decision":
+                self._retrieve_data()
+                my_id = self.game_data.misc["my_id"]
+                field_id = self.game_data.players[my_id]["field"]
+                field = self.game_data.fields[field_id]
+                if "buy" in self.game_data.misc["possible_actions"]:
+                    self._show_dialog(BuyDialog, field, True)
+                else:
+                    self._show_dialog(BuyDialog, field, False)
+            case "property_bought":
+                self._retrieve_data()
+
+        if self.messenger.find(section="misc", item="possible_actions") is not None:
+            self._set_control_states()
 
     def _set_control_states(self):
         if "possible_actions" not in self.game_data.misc:
             return
         self.right_menu.set_control_states()
-        self.game_board.set_control_states()
+
+    def _show_dialog(self, dialog_class: type[BuyDialog], field: Field, show_options: bool = False):
+        self.dialog: BuyDialog = dialog_class(self.game_board, field)
+        self.dialog.place(relx=0.5, rely=0.4, anchor="center")
+        if show_options:
+            self.dialog.show()
 
     def _set_ready(self, *args):
         self.ready = True
