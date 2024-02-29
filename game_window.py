@@ -93,12 +93,11 @@ class GameWindow(tk.Tk, Updatable):
                     f"{self.game_data.on_turn_player['name']} rolled {roll[0]} and {roll[1]}."
                 )
             case "moved":
-                for message in self.messenger.message:
-                    if message["section"] == "players" and message["attribute"] == "field":
-                        player_id = message["item"]
-                        self.game_board.move_token(
-                            player_id, self.game_data.players[player_id]["field"], message["value"]
-                        )
+                message = self.messenger.find(section="players", attribute="field")
+                player_id = message["item"]
+                self.game_board.move_token(
+                    player_id, self.game_data.players[player_id]["field"], message["value"]
+                )
                 self._retrieve_data()
                 field = self.game_data.fields[message["value"]]
                 own = owned_by = ""
