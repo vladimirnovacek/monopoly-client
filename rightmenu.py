@@ -220,7 +220,7 @@ class RightMenu(ttk.Frame, Updatable):
         self.chk_ready.state(['!alternate', self.ready_state])
         self.chk_ready.pack(side=tk.LEFT)
 
-        self.btn_end_turn = ttk.Button(self.frm_buttons, text="End turn")
+        self.btn_end_turn = ttk.Button(self.frm_buttons, text="End turn", command=self._end_turn)
         self.btn_end_turn.pack(side=tk.RIGHT)
 
     def add_player(self, player_id: int):
@@ -269,3 +269,6 @@ class RightMenu(ttk.Frame, Updatable):
                 "value": self.ready_state == "selected"
             }
         )
+
+    def _end_turn(self):
+        self.root.messenger.send("end_turn")
