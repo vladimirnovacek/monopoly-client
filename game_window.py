@@ -138,7 +138,9 @@ class GameWindow(tk.Tk, Updatable):
                 self.dialog.destroy()
             case "rent_paid":
                 self._retrieve_data()
-                self.dialog.destroy()
+            case "end_turn":
+                self._retrieve_data()
+                # self.right_menu.btn_end_turn.configure(state=tk.NORMAL)
 
         if self.messenger.find(section="misc", item="possible_actions") is not None:
             self._set_control_states()
