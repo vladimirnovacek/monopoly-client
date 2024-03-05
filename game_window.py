@@ -147,7 +147,7 @@ class GameWindow(tk.Tk, Updatable):
 
     def _set_control_states(self):
         if "possible_actions" not in self.game_data.misc:
-            return
+            self._retrieve_data()
         self.right_menu.set_control_states()
 
     def _show_dialog(self, dialog_class: type[BuyDialog], field: Field, options: tuple = ("buy", "auction")):
