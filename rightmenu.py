@@ -48,7 +48,7 @@ class PlayerFrame(ttk.Frame):
         self.name.bind("<KP_Enter>", lambda event: self.name_updated(event.widget.get()))
         self.name.bind("<FocusOut>", lambda event: self.name_updated(event.widget.get()))
 
-        self.cash = ttk.Label(self, text="0", anchor="center")
+        self.cash = ttk.Label(self, text="£ 0", anchor="center")
 
         self.left_arrow = ttk.Button(
             self,
@@ -102,7 +102,7 @@ class PlayerFrame(ttk.Frame):
                 elif self.selected_token_id == -1 or value != config.tokens[self.selected_token_id]:
                     self.token.configure(image=self.root.tokens[config.tokens.index(value)])
             case "cash":
-                self.cash.configure(text=value)
+                self.cash.configure(text=f"£ {value}")
 
 
     def destroy_arrows(self):

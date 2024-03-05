@@ -136,6 +136,7 @@ class GameWindow(tk.Tk, Updatable):
                 )
                 time.sleep(2)
                 self.dialog.destroy()
+            case "rent_paid":
                 self._retrieve_data()
                 self.dialog.destroy()
 
