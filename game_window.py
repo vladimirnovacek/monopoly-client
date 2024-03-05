@@ -3,6 +3,7 @@ from __future__ import annotations
 
 import logging
 import os
+import time
 import tkinter as tk
 from tkinter import ttk
 
@@ -122,9 +123,19 @@ class GameWindow(tk.Tk, Updatable):
                     self._show_dialog(BuyDialog, field, ())
             case "property_bought":
                 self._retrieve_data()
+                self.right_menu.update_game_log(
+                    f"{self.game_data.on_turn_player['name']} bought {self.game_data.on_turn_player_field['name']} "
+                    f"for £ {self.messenger.find(section='misc', item='price')['value']}"
+                )
                 self.dialog.show_sold()
                 self.dialog.destroy()
             case "auction":
+                self._retrieve_data()
+                self.right_menu.update_game_log(
+                    f"{self.game_data.on_turn_player['name']} did not buy {self.game_data.on_turn_player_field['name']}"
+                )
+                time.sleep(2)
+                self.dialog.destroy()
                 self._retrieve_data()
                 self.dialog.destroy()
 
