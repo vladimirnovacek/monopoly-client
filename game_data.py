@@ -52,6 +52,13 @@ class GameData:
         return None
 
     @property
+    def on_turn_player_field(self) -> Field | None:
+        try:
+            return self.fields[self.on_turn_player["field"]]
+        except KeyError:
+            return None
+
+    @property
     def my_id(self) -> int:
         if "my_id" not in self.misc:
             return -1
