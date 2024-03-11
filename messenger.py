@@ -24,17 +24,6 @@ class Messenger:
     def uuid(self):
         return self.game.game_data.get_uuid()
 
-    def _message_priority(self, message):
-        priority = [
-            ("event", "initialize"),
-            ("event", "player_connected"),
-            ("event", "possible_actions"),
-        ]
-        if (message["section"], message["item"]) in priority:
-            return priority.index((message["section"], message["item"]))
-        else:
-            return 999
-
     def parse(self, message: list):
         """
         Parses a message from the server.
