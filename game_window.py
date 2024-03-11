@@ -120,6 +120,16 @@ class GameWindow(tk.Tk, Updatable):
                             owned_by = f" owned by {self.game_data.players[field['owner']]['name']}"
                 log = f"{self.game_data.players[player_id]['name']} landed on {own}{field['name']}{owned_by}."
                 self.right_menu.update_game_log(log)
+                self._retrieve_data()
+            case "go_to_jail":
+                move_to_jail = self.messenger.find(section="players", attribute="field")
+                jail_id, player_id = move_to_jail["value"], move_to_jail["item"]
+                self.game_board.move_token(player_id, jail_id, directly=True)
+                self._retrieve_data()
+            case "leaving_jail":
+                message = self.messenger.find(section="players", attribute="field")
+                self.game_board.move_token(message["item"], message["value"], directly=True)
+                self._retrieve_data()
             case "buying_decision":
                 self._retrieve_data()
                 player_id = self.game_data.misc["on_turn"]
