@@ -76,6 +76,6 @@ class GameBoard(tk.Canvas):
         field_id = start_field_id
         while field_id < end_field_id:
             field_id += 1
-            step(field_id, )
+            step(field_id)
             self.update()
             sleep(delay)
