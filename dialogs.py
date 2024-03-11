@@ -1,6 +1,6 @@
 import os
 import time
-from abc import ABC
+from abc import ABC, abstractmethod
 from enum import Enum
 import tkinter as tk
 import tkinter.font as tkfont
@@ -116,6 +116,140 @@ class Card(ABC):
         x2 = x1 + width
         y2 = y1 + height
         return x1, y1, x2, y2
+
+
+class ChanceCcCard(Card):
+
+    _TITLE_COORDS: tuple = (120, 16)
+
+    _IMG_NAMES: tuple[str] = (
+        "advance_to", "beauty_contest", "birthday", "collect", "get_out_of_jail",
+        "go_back", "go_to_jail", "pay", "reconstruct", "withdraw"
+    )
+
+    _TITLE_TEXT: dict = {"chance": "Chance", "cc": "Community Chest"}
+
+    _DECK_IMAGES = {
+        "chance": [
+            "advance_to", "advance_to", "advance_to", "advance_to",
+            "advance_to", "advance_to", "advance_to", "collect", "free_of_jail",
+            "go_back", "go_to_jail", "reconstruct", "pay", "advance_to", "pay",
+            "collect"
+        ],
+        "cc": [
+            "advance_to", "collect", "pay", "withdraw", "free_of_jail",
+            "go_to_jail", "collect", "collect", "birthday", "collect", "pay",
+            "pay", "withdraw", "reconstruct", "beauty_contest", "collect"
+        ]
+    }
+
+    def __init__(self, canvas: tk.Canvas):
+        super().__init__(canvas)
+        self.x = 0
+        self.y = 0
+        self._pos |= {
+            "left": (70, 83),
+            "right": (170, 83),
+            "bottom": (120, 128)
+        }
+        self._dim |= {
+            "card": (240, 157),
+            "left": (115, 113),
+            "right": (115, 113),
+            "bottom": (222, 22)
+        }
+        self._text_positions = {
+            "advance_to": self.pos_dim["left"],
+            "beauty_contest": self.pos_dim["left"],
+            "birthday": self.pos_dim["right"],
+            "collect": self.pos_dim["right"],
+            "get_out_of_jail": self.pos_dim["bottom"],
+            "go_back": self.pos_dim["right"],
+            "go_to_jail": self.pos_dim["bottom"],
+            "pay": self.pos_dim["left"],
+            "reconstruct": self.pos_dim["bottom"],
+            "withdraw": self.pos_dim["right"]
+        }
+        self.images: dict[
+            str, dict[str, tk.PhotoImage | tuple[int, int, int, int]]
+        ] = {}
+        """ Slovník s obrázky karet a umístěním textu na kartě. """
+        self.load_images()
+        self.img: str = ""
+
+    def load_images(self):
+        for name in self._IMG_NAMES:
+            text_position = self._text_positions[name]
+            self.images[name] = {
+                "image": tk.PhotoImage(
+                    file=os.path.join(config.path_cards,
+                                      f"{name}.png")),
+                "text_position": text_position
+            }
+
+    def show_card(self, data):
+        self._set_info(data)
+        self._show()
+
+    def _set_info(self, data: dict):
+        necessary_keys = (
+            "deck", "id", "text"
+        )
+        assert all(key in data for key in necessary_keys)
+        self.card_data = data
+
+    def paint(self):
+        self.img: str = self._DECK_IMAGES[self.card_data["deck"]][self.card_data["id"]]
+        self.ids["card"] = self.canvas.create_image(
+            self.x, self.y,
+            anchor=tk.NW,
+            image=self.images[self.img]["image"],  # tk.PhotoImage
+        )
+        origin = (self.x, self.y)
+        title_coords = tuple(map(sum, zip(self._TITLE_COORDS, origin)))
+        self.ids["title"] = self.canvas.create_text(
+            *title_coords,
+            text=self._TITLE_TEXT[self.card_data["deck"]].upper(),
+            anchor=tk.CENTER,
+            justify=tk.CENTER,
+            font=self.font["title"]
+        )
+        text_coords = tuple(map(sum, zip(  # souřadnice textu karty
+            self.images[self.img]["text_position"][:2], origin
+        )))
+        text_width: int = self._text_positions[self.img][2]  # šířka textu
+        self.ids["text"] = self.canvas.create_text(
+            *text_coords,
+            anchor=tk.CENTER,
+            width=text_width,
+            justify=tk.CENTER,
+            font=self.font["text_2"],
+            text=self.card_data["text"].upper()
+        )
+        self.canvas.addtag_enclosed("card", *self.canvas.bbox(self.ids["card"]))
+
+    def repaint(self):
+        self.canvas.itemconfigure("card", state=tk.NORMAL)
+        self.img: str = \
+            self._DECK_IMAGES[self.card_data["deck"]][self.card_data["id"]]
+        self.canvas.itemconfigure(
+            self.ids["card"], {"image": self.images[self.img]["image"]}
+        )
+        self.canvas.itemconfigure(
+            self.ids["title"],
+            {"text": self._TITLE_TEXT[self.card_data["deck"]].upper()}
+        )
+        text_coords = tuple(map(sum, zip(  # souřadnice textu karty
+            self._text_positions[self.img][:2],
+            self.canvas.bbox(self.ids["card"])[:2]
+        )))
+        text_width: int = self._text_positions[self.img][2]  # šířka textu
+        self.canvas.coords(self.ids["text"], *text_coords)
+        self.canvas.itemconfigure(
+            self.ids["text"], text=self.card_data["text"].upper(),
+            width=text_width
+        )
+        self.canvas.itemconfigure("card", state=tk.NORMAL)
 
 
 class PropertyCard(Card):
@@ -604,7 +738,36 @@ class StreetCard(PropertyCard):
         self.canvas.itemconfigure("street_card", state=tk.NORMAL)
 
 
-class BuyDialog(tk.Canvas):
+class Dialog(tk.Canvas, ABC):
+    @abstractmethod
+    def show(self):
+        raise NotImplementedError
+
+
+class CardDialog(Dialog):
+    def __init__(self, master, deck: str, card_id: int, text: str):
+        super().__init__(master)
+        self.root = self.winfo_toplevel()
+        self.card = ChanceCcCard(self)
+        self.data = {"deck": deck, "id": card_id, "text": text}
+        self.width, self.height = self.card.dimensions
+        self.configure(width=self.width, height=self.height)
+
+    def show(self):
+        destroy = False
+        def set_destroy():
+            nonlocal destroy
+            destroy = True
+            self.update()
+        self.card.show_card(self.data)
+        self.bind("<Button-1>", lambda event: set_destroy())
+        self.update()
+        while not destroy:
+            self.update()
+        self.destroy()
+
+
+class BuyDialog(Dialog):
     def __init__(self, master, field: Field, options: tuple[str] = ("buy", "auction")):
         super().__init__(master)
         self.root = self.winfo_toplevel()
