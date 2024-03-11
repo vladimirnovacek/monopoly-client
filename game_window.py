@@ -10,11 +10,11 @@ from tkinter import ttk
 from PIL import ImageTk, Image
 
 import config
-from dialogs import BuyDialog
+from dialogs import BuyDialog, CardDialog, Dialog
 from interfaces import Updatable
 from gameboard import GameBoard
 
-from game_data import GameData, Field
+from game_data import GameData
 from messenger import Messenger
 from rightmenu import RightMenu
 
@@ -57,6 +57,8 @@ class GameWindow(tk.Tk, Updatable):
         self.right_menu = RightMenu(self, padding=10)
         self.right_menu.grid(row=0, column=1, sticky="nsew")
         self.grid_columnconfigure(1, weight=1)
+
+        self.dialog: Dialog | None = None
 
     def parse(self, message):
         logging.debug(f"Parsing event: {message['item']}")
@@ -121,6 +123,11 @@ class GameWindow(tk.Tk, Updatable):
                     self._show_dialog(BuyDialog, field)
                 else:
                     self._show_dialog(BuyDialog, field, ())
+            case "card":
+                deck = self.game_data.on_turn_player_field["type"]
+                card_id, text = self.messenger.find(section="misc", item="card")["value"]
+                self._show_dialog(CardDialog, deck, card_id, text)
+                self._retrieve_data()
             case "property_bought":
                 self._retrieve_data()
                 self.right_menu.update_game_log(
@@ -150,8 +157,8 @@ class GameWindow(tk.Tk, Updatable):
             self._retrieve_data()
         self.right_menu.set_control_states()
 
-    def _show_dialog(self, dialog_class: type[BuyDialog], field: Field, options: tuple = ("buy", "auction")):
-        self.dialog: BuyDialog = dialog_class(self.game_board, field, options)
+    def _show_dialog(self, dialog_class: type[Dialog], *args):
+        self.dialog: Dialog = dialog_class(self.game_board, *args)
         self.dialog.place(relx=0.5, rely=0.4, anchor="center")
         self.dialog.show()
 
