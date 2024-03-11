@@ -132,12 +132,12 @@ class ChanceCcCard(Card):
     _DECK_IMAGES = {
         "chance": [
             "advance_to", "advance_to", "advance_to", "advance_to",
-            "advance_to", "advance_to", "advance_to", "collect", "free_of_jail",
+            "advance_to", "advance_to", "advance_to", "collect", "get_out_of_jail",
             "go_back", "go_to_jail", "reconstruct", "pay", "advance_to", "pay",
             "collect"
         ],
         "cc": [
-            "advance_to", "collect", "pay", "withdraw", "free_of_jail",
+            "advance_to", "collect", "pay", "withdraw", "get_out_of_jail",
             "go_to_jail", "collect", "collect", "birthday", "collect", "pay",
             "pay", "withdraw", "reconstruct", "beauty_contest", "collect"
         ]
@@ -167,7 +167,7 @@ class ChanceCcCard(Card):
             "go_back": self.pos_dim["right"],
             "go_to_jail": self.pos_dim["bottom"],
             "pay": self.pos_dim["left"],
-            "reconstruct": self.pos_dim["bottom"],
+            "reconstruct": self.pos_dim["left"],
             "withdraw": self.pos_dim["right"]
         }
         self.images: dict[
