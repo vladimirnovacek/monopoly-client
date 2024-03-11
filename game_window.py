@@ -98,10 +98,16 @@ class GameWindow(tk.Tk, Updatable):
             case "moved":
                 message = self.messenger.find(section="players", attribute="field")
                 player_id = message["item"]
-                self.game_board.move_token(
-                    player_id, self.game_data.players[player_id]["field"], message["value"]
-                )
-                self._retrieve_data()
+                pass_go = self.messenger.find(section="misc", item="pass_go")
+                if pass_go:
+                    self.game_board.move_token(player_id, 0)
+                    self.game_data.update(section="players", item=player_id, attribute="field", value=0)
+                    self.right_menu.update_game_log(f"{self.game_data.players[player_id]['name']} passed GO and "
+                                                    f"received £ 200")
+                    time.sleep(1)
+                    self.game_board.move_token(player_id, message["value"])
+                else:
+                    self.game_board.move_token(player_id, message["value"])
                 field = self.game_data.fields[message["value"]]
                 own = owned_by = ""
                 if field["type"] in ("street", "utility", "railroad"):
