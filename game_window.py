@@ -144,6 +144,19 @@ class GameWindow(tk.Tk, Updatable):
                 time.sleep(2)
                 self.dialog.destroy()
             case "rent_paid":
+                owner = self.game_data.on_turn_player_field["owner"]
+                owner_name = self.game_data.players[owner]["name"]
+                self.right_menu.update_game_log(
+                    f"{self.game_data.on_turn_player['name']} paid rent of "
+                    f"£ {self.messenger.find(section='misc', item='rent')['value']} "
+                    f"to {owner_name}"
+                )
+                self._retrieve_data()
+            case "tax_paid":
+                self.right_menu.update_game_log(
+                    f"{self.game_data.on_turn_player['name']} paid "
+                    f"£ {self.messenger.find(section='misc', item='tax')['value']}"
+                )
                 self._retrieve_data()
             case "end_turn":
                 self._retrieve_data()
