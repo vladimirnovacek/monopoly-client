@@ -45,6 +45,19 @@ class GameBoard(tk.Canvas):
         #     "utility": UtilityCard(self)
         # }
 
+    def moveto(self, tagOrId, x = 0, y = 0,
+               anchor: typing.Literal["nw", "n", "ne", "w", "center", "e", "sw", "s", "se"] = tk.NW):
+        x0, y0, x1, y1 = self.bbox(tagOrId)
+        width, height = x1 - x0, y1 - y0
+        deltas = {
+            tk.NW: (0, 0), tk.N: (width / 2, 0), tk.NE: (width, 0),
+            tk.W: (0, height / 2), tk.CENTER: (width / 2, height / 2), tk.E: (width, height / 2),
+            tk.SW: (0, height), tk.S: (width / 2, height), tk.SE: (width, height)
+        }
+        dx, dy = deltas[anchor]
+
+        super().moveto(tagOrId, x - dx, y - dy)
+
     def start_game(self):
         for player_id, player in self.master.game_data.players.items():
             token = self.root.tokens[config.tokens.index(player["token"])]
