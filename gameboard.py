@@ -77,18 +77,39 @@ class GameBoard(tk.Canvas):
     def _roll(self, *args):
         self.root.messenger.send("roll")
 
-    def move_token(self, player_id: int, start_field_id: int, end_field_id: int):
+    def move_token(self, player_id: int, end_field_id: int, *, backwards: bool = False, directly: bool = False):
         def step(to_id: int):
-            from_id = len(self.field_coordinates) - 2 if to_id == 0 else to_id - 1
+            if backwards:
+                from_id = 0 if to_id == len(self.field_coordinates) - 2 else to_id + 1
+            else:
+                from_id = len(self.field_coordinates) - 2 if to_id == 0 else to_id - 1
             x0, y0 = self.field_coordinates[from_id]
             x1, y1 = self.field_coordinates[to_id]
             dx, dy = x1 - x0, y1 - y0
             self.move(self.tokens[player_id], dx, dy)
 
+
+        field_id = self.root.game_data.players[player_id]["field"]
+
+        if directly:
+            x, y = self.field_coordinates[end_field_id]
+            self.moveto(self.tokens[player_id], x, y, anchor=tk.CENTER)
+            return
+
         delay = 0.3
-        field_id = start_field_id
-        while field_id < end_field_id:
-            field_id += 1
-            step(field_id)
-            self.update()
-            sleep(delay)
+        if backwards:
+            while field_id != end_field_id:
+                field_id -= 1
+                if field_id < 0:
+                    field_id %= 40
+                step(field_id)
+                self.update()
+                sleep(delay)
+        else:
+            while field_id != end_field_id:
+                field_id += 1
+                if field_id >= len(self.field_coordinates) - 1:
+                    field_id %= len(self.field_coordinates) - 1
+                step(field_id)
+                self.update()
+                sleep(delay)
