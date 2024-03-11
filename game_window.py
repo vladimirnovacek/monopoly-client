@@ -140,8 +140,12 @@ class GameWindow(tk.Tk, Updatable):
                 else:
                     self._show_dialog(BuyDialog, field, ())
             case "card":
-                deck = self.game_data.on_turn_player_field["type"]
                 card_id, text = self.messenger.find(section="misc", item="card")["value"]
+                if card_id >= 100:
+                    deck = "cc"
+                    card_id -= 100
+                else:
+                    deck = "chance"
                 self._show_dialog(CardDialog, deck, card_id, text)
                 self._retrieve_data()
             case "property_bought":
