@@ -1,6 +1,6 @@
 import os
 import tkinter as tk
-from abc import ABC
+from abc import ABC, abstractmethod
 from string import Template
 from tkinter import font as tkfont
 
@@ -11,11 +11,25 @@ from dialogs.color import Color
 class Card(ABC):
 
     def __init__(self, canvas: tk.Canvas, x: int = 0, y: int = 0):
+        """
+        Creates an instance of a card that can be drawn on `canvas` on coordinates `x` and `y`. The card is not
+        displayed immediatelly, show_card() method has to be called.
+        :param canvas: canvas where the card can be drawn
+        :type canvas: tk.Canvas
+        :param x: x coordinate of upper left corner
+        :type x: int
+        :param y: y coordinate of upper left corner
+        :type y: int
+        """
         self.x: int = x
+        """ x coordinate of upper left corner of the card """
         self.y: int = y
+        """ y coordinate of upper left corner of the card """
         self._pos: dict = {}
+        """ dictionary with positions of graphical elements """
         self._dim: dict = {}
-        self.font = {
+        """ dictionary with dimensions of graphical elements """
+        self.font: dict = {
             "deed": tkfont.Font(size=6),
             "title": tkfont.Font(size=12, weight=tk.font.BOLD),
             "text": tkfont.Font(size=8),
@@ -23,34 +37,53 @@ class Card(ABC):
             "small": tkfont.Font(size=6),
             "sold": tkfont.Font(size=40, weight=tk.font.BOLD)
         }
+        """ dictionary with fonts used on the card """
         self.canvas: tk.Canvas = canvas
         self.card_data: dict = {}
+        """ Additional informations unique to each card, like prices, rents, name, etc. """
         self.ids = {}
+        """ Dictionary of canvas ids of card elements """
         self.tags = ["card"]
 
     @property
-    def dimensions(self):
-        x = max([pair[0] for pair in self._dim.values()])
-        y = max([pair[1] for pair in self._dim.values()])
-        return x, y
+    def dimensions(self) -> tuple[int, int]:
+        """
+        Dimensions of the card
+        :return:
+        :rtype: tuple[int, int]
+        """
+        width = max([pair[0] for pair in self._dim.values()])
+        height = max([pair[1] for pair in self._dim.values()])
+        return width, height
 
     @property
-    def pos_dim(self):
+    def pos_dim(self) -> dict:
+        """
+        Dictionary with positions and dimensions of graphical elements in order (x, y, width, height).
+        """
         return {
             key: self._pos[key] + self._dim[key]
             for key in self._pos if key in self._dim
         }
 
-    def show_card(self, data):
+    def show_card(self, data: dict) -> None:
+        """
+        Shows the card on the canvas.
+        :param data: Data you want to display on the card
+        :type data: dict
+        """
         self._set_info(data)
         self._show()
 
+    @abstractmethod
     def _set_info(self, data):
         ...
 
+    @abstractmethod
     def paint(self):
         ...
 
+    @abstractmethod
     def repaint(self):
         ...
 
@@ -87,11 +120,10 @@ class Card(ABC):
 
     def _dimensions(self, x, y, width, height) -> tuple[int, int, int, int]:
         """
-        Převede rozměry z formátu x, y, šířka, výška do formátu x1, y1, x2, y2,
-        kde x1, y1 jsou souřadnice levného horního rohu a x2, y2 pravého
-        dolního. Zároveň je posune na souřadnice počátku objektu podle
-        atributů třídy x, y.
-
+        Converts dimensions from x, y, width, height format to x1, y1, x2, y2 format, where x1, y1 are
+        the coordinates of the cheap upper corner and x2, y2 are the coordinates of the lower right corner.
+        At the same time, it moves them to the coordinates of the origin of the object according to the x, y attributes
+        of the class.
         :param x:
         :param y:
         :param width:
@@ -240,8 +272,8 @@ class ChanceCcCard(Card):
 
 
 class PropertyCard(Card):
-    """ Abstraktní třída představující grafické znázornění karty ulice,
-    železnice nebo utility.
+    """
+    Abstract class representing graphical representation of a property card.
     """
     TAG = "property_card"
 
