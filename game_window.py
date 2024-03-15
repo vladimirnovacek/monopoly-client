@@ -10,7 +10,7 @@ from tkinter import ttk
 from PIL import ImageTk, Image
 
 import config
-from dialogs import BuyDialog, CardDialog, Dialog
+from dialogs.dialog import Dialog, CardDialog, BuyDialog
 from interfaces import Updatable
 from gameboard import GameBoard
 
