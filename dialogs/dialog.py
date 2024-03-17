@@ -2,15 +2,18 @@ import time
 import tkinter as tk
 import typing
 from abc import ABC, abstractmethod
+from tkinter import ttk
+from typing import Literal
 
 from dialogs.card import ChanceCcCard, StreetCard, UtilityCard, RailroadCard
 from game_data import Field
+from mixins import DragDropMixin
 
 if typing.TYPE_CHECKING:
     from game_window import GameWindow
 
 
-class Dialog(tk.Canvas, ABC):
+class Dialog(DragDropMixin, tk.Canvas, ABC):
     @abstractmethod
     def show(self):
         raise NotImplementedError
