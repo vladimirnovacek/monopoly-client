@@ -37,6 +37,7 @@ class GameWindow(tk.Tk, Updatable):
             "cc": ImageTk.PhotoImage(file=os.path.join(config.path_images, "cc.png")),
             "left_arrow": ImageTk.PhotoImage(file=os.path.join(config.path_images, "buttons/left_arrow.png")),
             "right_arrow": ImageTk.PhotoImage(file=os.path.join(config.path_images, "buttons/right_arrow.png")),
+            "mortgage": ImageTk.PhotoImage(file=os.path.join(config.path_images, "buttons/mortgage.png")),
         }
 
         # game control
