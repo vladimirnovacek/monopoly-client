@@ -98,3 +98,39 @@ class BuyDialog(Dialog):
 
     def _auction(self, *args):
         self.root.messenger.send("auction")
+
+
+class PropertyDialog(Dialog):
+    def __init__(self, master: tk.Misc, field: Field):
+        super().__init__(master)
+        self.root: GameWindow = self.winfo_toplevel()
+        self.field = field
+        if self.field["type"] == "street":
+            self.card = StreetCard(self)
+        elif self.field["type"] == "utility":
+            self.card = UtilityCard(self)
+        elif self.field["type"] == "railroad":
+            self.card = RailroadCard(self)
+        if self.field['owner'] is None:
+            self.height = self.card.dimensions[1] + 50
+        else:
+            self.height = self.card.dimensions[1] + 75
+            self.card.y = 25
+            if self.field['owner'] == self.root.game_data.my_id:
+                label_text = 'Owned by me'
+                self.btn_mortgage = ttk.Button(self, image=self.root.images["mortgage"], command=self._mortgage)
+                self.btn_mortgage.place(x=0, y=self.height - 50)
+                self.btn_close = ttk.Button(self, text='Close', command=self._close)
+            else:
+                label_text = f'Owned by {self.root.game_data.players[self.field["owner"]]["name"]}'
+            lbl_owner = tk.Label(self, text=label_text, anchor=tk.CENTER, justify=tk.CENTER)
+            lbl_owner.place(relx=0.5, y=0, anchor=tk.N)
+        self.width = self.card.dimensions[0]
+        self.configure(width=self.width, height=self.height)
+        self.btn_mortgage = ttk.Button(self, image=self.root.images["mortgage"], command=self._mortgage)
+
+    def show(self):
+        self.card.show_card(self.field)
+
+    def _mortgage(self):
+        pass
