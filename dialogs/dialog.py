@@ -17,7 +17,18 @@ class Dialog(tk.Canvas, ABC):
 
 
 class CardDialog(Dialog):
-    def __init__(self, master, deck: str, card_id: int, text: str):
+    """ Dialog displaying a Chance or Community Chest card. """
+    def __init__(self, master: tk.Misc, deck: Literal["chance", "cc"], card_id: int, text: str):
+        """
+        :param master:
+        :type master:
+        :param deck:
+        :type deck:
+        :param card_id:
+        :type card_id:
+        :param text:
+        :type text:
+        """
         super().__init__(master)
         self.root = self.winfo_toplevel()
         self.card = ChanceCcCard(self)
