@@ -436,6 +436,8 @@ class UtilityCard(PropertyCard):
         for elem in self.ids.values():
             self.add_all_tags(elem)
 
+    def repaint(self):
+        pass
 
 class RailroadCard(PropertyCard):
 
