@@ -6,6 +6,7 @@ import typing
 from time import sleep
 
 import config
+from dialogs.dialog import DeedDialog
 from dice import Dice
 
 if typing.TYPE_CHECKING:
@@ -55,6 +56,9 @@ class GameBoard(tk.Canvas):
             x2, y2 = field[1]
             if x1 <= x <= x2 and y1 <= y <= y2:
                 print(f"Clicked field number {i}")
+                if self.root.game_data.fields[i]['type'] in ('street', 'railroad', 'utility'):
+                    dialog = DeedDialog.get_overview_dialog(self, self.root.game_data.fields[i])
+                    self.root.show_dialog(dialog)
                 return
         print("Clicked canvas")
 
