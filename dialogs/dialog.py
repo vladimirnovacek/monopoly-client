@@ -1,7 +1,7 @@
 import time
 import tkinter as tk
-import typing
-from abc import ABC, abstractmethod
+from typing import TYPE_CHECKING, Self
+from abc import ABC
 from tkinter import ttk
 from typing import Literal
 
@@ -9,14 +9,19 @@ from dialogs.card import ChanceCcCard, StreetCard, UtilityCard, RailroadCard
 from game_data import Field
 from mixins import DragDropMixin
 
-if typing.TYPE_CHECKING:
+if TYPE_CHECKING:
     from game_window import GameWindow
 
 
+def name2text(name: str) -> str:
+    return name.translate(str.maketrans('_-', '  ')).capitalize()
+
+
 class Dialog(DragDropMixin, tk.Canvas, ABC):
-    @abstractmethod
-    def show(self):
-        raise NotImplementedError
+    def __init__(self, master: tk.Misc):
+        super().__init__(master)
+        self.root: GameWindow = self.winfo_toplevel()
+        self.button_height = 30
 
 
 class CardDialog(Dialog):
@@ -33,30 +38,31 @@ class CardDialog(Dialog):
         :type text:
         """
         super().__init__(master)
-        self.root = self.winfo_toplevel()
         self.card = ChanceCcCard(self)
         self.data = {"deck": deck, "id": card_id, "text": text}
         self.width, self.height = self.card.dimensions
         self.configure(width=self.width, height=self.height)
-
-    def show(self):
-        destroy = False
-        def set_destroy():
-            nonlocal destroy
-            destroy = True
-            self.update()
         self.card.show_card(self.data)
-        self.bind("<Button-1>", lambda event: set_destroy())
-        self.update()
-        while not destroy:
-            self.update()
-        self.destroy()
+        self.bind("<Button-3>", lambda event: self.destroy())
 
 
-class BuyDialog(Dialog):
-    def __init__(self, master, field: Field, options: tuple[str] = ("buy", "auction")):
+class DeedDialog(Dialog):
+    @classmethod
+    def get_buy_dialog(cls, master, field: Field) -> Self:
+        return cls(master, field, buttons=('buy', 'auction'))
+
+    @classmethod
+    def get_overview_dialog(cls, master, field: Field) -> Self:
+        if field['owner'] == master.root.game_data.my_id:
+            if field['mortgage']:
+                buttons = ('unmortgage', 'buy_houses')
+            else:
+                buttons = ('mortgage', 'buy_houses')
+            return cls(master, field, buttons=buttons)
+        return cls(master, field)
+
+    def __init__(self, master, field: Field, **kwargs):
         super().__init__(master)
-        self.root: GameWindow = self.winfo_toplevel()
         self.field = field
         if self.field["type"] == "street":
             self.card = StreetCard(self)
@@ -64,76 +70,67 @@ class BuyDialog(Dialog):
             self.card = UtilityCard(self)
         elif self.field["type"] == "railroad":
             self.card = RailroadCard(self)
-        self.width = self.card.dimensions[0] * (1 + len(options) / 2)
+        self.width = self.card.dimensions[0]
         self.height = self.card.dimensions[1]
-        self.card.x = self.width // 4 if "buy" in options else 0
         self.configure(width=self.width, height=self.height)
-        self.options = options
-
-    def show(self):
         self.card.show_card(self.field)
-        if self.options:
-            self.show_options()
+        if 'buttons' in kwargs:
+            self.show_options(kwargs['buttons'])
 
-    def show_options(self):
-        if "buy" in self.options:
-            self.create_rectangle(0, 0, self.width // 4, self.height, fill="green1", tags="buy")
+    def show_options(self, buttons: tuple | list):
+        y = self.height
+        self.height += self.button_height
+        self.configure(height=self.height)
+        button_width = self.width / len(buttons)
+        for i, option in enumerate(buttons):
+            x = button_width * i
+            self.create_rectangle(x, y, x + button_width, self.height, fill="white", tags=option)
             self.create_text(
-                self.width // 8, self.height // 2,
-                angle=90, text="Buy", anchor=tk.CENTER, font=self.card.font["title"], tags="buy"
+                x + button_width // 2, (self.height + y) // 2,
+                text=name2text(option), anchor=tk.CENTER, tags=option, font=self.card.font['title']
             )
-            self.tag_bind("buy", "<Button-1>", self._buy)
-        if "auction" in self.options:
-            self.create_rectangle(self.width * 3 // 4, 0, self.width, self.height, fill="red2", tags="auction")
-            self.create_text(
-                self.width * 7 // 8, self.height // 2,
-                angle=270, text="Auction", anchor=tk.CENTER, font=self.card.font["title"], tags="auction"
-            )
-            self.tag_bind("auction", "<Button-1>", self._auction)
+            self.tag_bind(option, "<Button-1>", lambda event, opt=option: getattr(self, f'_{opt}')())
 
     def show_sold(self):
         self.card.sold()
         self.update()
         time.sleep(2)
 
-    def _buy(self, *args):
+    def _buy(self):
         self.root.messenger.send("buy")
 
-    def _auction(self, *args):
+    def _auction(self):
         self.root.messenger.send("auction")
 
+    def _mortgage(self):
+        self.root.messenger.send('mortgage', {'field': self.field['field_id']})
 
-class PropertyDialog(Dialog):
-    def __init__(self, master: tk.Misc, field: Field):
+    def _unmortgage(self):
+        self.root.messenger.send('unmortgage', {'field': self.field['field_id']})
+
+    def _buy_houses(self):
+        pass
+
+
+class PropertyListDialog(Dialog):
+    def __init__(self, master: tk.Misc, player_id: int = -1):
         super().__init__(master)
-        self.root: GameWindow = self.winfo_toplevel()
-        self.field = field
-        if self.field["type"] == "street":
-            self.card = StreetCard(self)
-        elif self.field["type"] == "utility":
-            self.card = UtilityCard(self)
-        elif self.field["type"] == "railroad":
-            self.card = RailroadCard(self)
-        if self.field['owner'] is None:
-            self.height = self.card.dimensions[1] + 50
-        else:
-            self.height = self.card.dimensions[1] + 75
-            self.card.y = 25
-            if self.field['owner'] == self.root.game_data.my_id:
-                label_text = 'Owned by me'
-                self.btn_mortgage = ttk.Button(self, image=self.root.images["mortgage"], command=self._mortgage)
-                self.btn_mortgage.place(x=0, y=self.height - 50)
-                self.btn_close = ttk.Button(self, text='Close', command=self._close)
-            else:
-                label_text = f'Owned by {self.root.game_data.players[self.field["owner"]]["name"]}'
-            lbl_owner = tk.Label(self, text=label_text, anchor=tk.CENTER, justify=tk.CENTER)
-            lbl_owner.place(relx=0.5, y=0, anchor=tk.N)
-        self.width = self.card.dimensions[0]
-        self.configure(width=self.width, height=self.height)
-        self.btn_mortgage = ttk.Button(self, image=self.root.images["mortgage"], command=self._mortgage)
+        if player_id == -1:
+            player_id = self.root.game_data.my_id
+        owned_properties = [
+            field for field in self.root.game_data.fields.values()
+            if field.get('owner', None) == player_id
+        ]
+        names = [field['name'] for field in owned_properties]
+        cbx_names = tk.Listbox(self, selectmode=tk.SINGLE, exportselection=False)
+        cbx_names.insert(tk.END, *names)
+        cbx_names.pack()
+        if player_id == self.root.game_data.my_id:
+            self.btn_mortgage = ttk.Button(self, image=self.root.images["mortgage"], command=self._mortgage)
+            self.btn_mortgage.pack()
 
     def show(self):
-        self.card.show_card(self.field)
+        pass
 
     def _mortgage(self):
         pass

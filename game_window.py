@@ -6,11 +6,12 @@ import os
 import time
 import tkinter as tk
 from tkinter import ttk
+from typing import Literal
 
 from PIL import ImageTk, Image
 
 import config
-from dialogs.dialog import Dialog, CardDialog, BuyDialog
+from dialogs.dialog import Dialog, CardDialog, DeedDialog
 from interfaces import Updatable
 from gameboard import GameBoard
 
@@ -137,17 +138,21 @@ class GameWindow(tk.Tk, Updatable):
                 field_id = self.game_data.players[player_id]["field"]
                 field = self.game_data.fields[field_id]
                 if "buy" in self.game_data.misc["possible_actions"]:
-                    self._show_dialog(BuyDialog, field)
+                    dialog = DeedDialog.get_buy_dialog(self.game_board, field)
+                    self.show_dialog(dialog)
                 else:
-                    self._show_dialog(BuyDialog, field, ())
+                    dialog = DeedDialog.get_overview_dialog(self.game_board, field)
+                    self.show_dialog(dialog)
             case "card":
                 card_id, text = self.messenger.find(section="misc", item="card")["value"]
+                deck: Literal['cc', 'chance']
                 if card_id >= 100:
                     deck = "cc"
                     card_id -= 100
                 else:
                     deck = "chance"
-                self._show_dialog(CardDialog, deck, card_id, text)
+                dialog = CardDialog(self.game_board, deck, card_id, text)
+                self.show_dialog(dialog)
                 self._retrieve_data()
             case "property_bought":
                 self._retrieve_data()
@@ -191,10 +196,13 @@ class GameWindow(tk.Tk, Updatable):
             self._retrieve_data()
         self.right_menu.set_control_states()
 
-    def _show_dialog(self, dialog_class: type[Dialog], *args):
-        self.dialog: Dialog = dialog_class(self.game_board, *args)
+    def show_dialog(self, dialog: Dialog):
+        try:
+            self.dialog.destroy()
+        except AttributeError:
+            pass
+        self.dialog = dialog
         self.dialog.place(relx=0.5, rely=0.4, anchor="center")
-        self.dialog.show()
 
     def _set_ready(self, *args):
         self.ready = True

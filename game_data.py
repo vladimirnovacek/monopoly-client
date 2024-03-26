@@ -8,6 +8,7 @@ class Field(TypedDict, total=False):
     type: str
     owner: int
     name: str
+    mortgage: bool
 
 
 class Player(TypedDict, total=False):
@@ -57,6 +58,12 @@ class GameData:
             return self.fields[self.on_turn_player["field"]]
         except KeyError:
             return None
+
+    @property
+    def me(self) -> Player | None:
+        if "my_id" in self.misc:
+            return self.players[self.misc["my_id"]]
+        return None
 
     @property
     def my_id(self) -> int:
