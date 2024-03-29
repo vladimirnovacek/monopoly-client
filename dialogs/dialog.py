@@ -22,6 +22,13 @@ class Dialog(DragDropMixin, tk.Canvas, ABC):
         super().__init__(master)
         self.root: GameWindow = self.winfo_toplevel()
         self.button_height = 30
+        self.mandatory: bool = False
+        self.bind("<Button-3>", lambda event: self.close())
+
+    def close(self):
+        print("Closing dialog")
+        if not self.mandatory:
+            super().destroy()
 
 
 class CardDialog(Dialog):
@@ -43,13 +50,14 @@ class CardDialog(Dialog):
         self.width, self.height = self.card.dimensions
         self.configure(width=self.width, height=self.height)
         self.card.show_card(self.data)
-        self.bind("<Button-3>", lambda event: self.destroy())
 
 
 class DeedDialog(Dialog):
     @classmethod
     def get_buy_dialog(cls, master, field: Field) -> Self:
-        return cls(master, field, buttons=('buy', 'auction'))
+        dialog = cls(master, field, buttons=('buy', 'auction'))
+        dialog.mandatory = True
+        return dialog
 
     @classmethod
     def get_overview_dialog(cls, master, field: Field) -> Self:
