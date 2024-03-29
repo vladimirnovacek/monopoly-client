@@ -60,7 +60,6 @@ class GameBoard(tk.Canvas):
                     dialog = DeedDialog.get_overview_dialog(self, self.root.game_data.fields[i])
                     self.root.show_dialog(dialog)
                 return
-        print("Clicked canvas")
 
     def moveto(self, tagOrId, x = 0, y = 0,
                anchor: typing.Literal["nw", "n", "ne", "w", "center", "e", "sw", "s", "se"] = tk.NW):
