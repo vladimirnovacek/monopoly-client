@@ -60,7 +60,8 @@ class GameWindow(tk.Tk, Updatable):
         self.right_menu.grid(row=0, column=1, sticky="nsew")
         self.grid_columnconfigure(1, weight=1)
 
-        self.dialog: Dialog | None = None
+        self.buy_dialog: DeedDialog | None = None
+        self.dialogs: list[Dialog] = []
 
     def parse(self, message):
         logging.debug(f"Parsing event: {message['item']}")
@@ -143,6 +144,7 @@ class GameWindow(tk.Tk, Updatable):
                 else:
                     dialog = DeedDialog.get_overview_dialog(self.game_board, field)
                     self.show_dialog(dialog)
+                self.buy_dialog = dialog
             case "card":
                 card_id, text = self.messenger.find(section="misc", item="card")["value"]
                 deck: Literal['cc', 'chance']
@@ -160,15 +162,14 @@ class GameWindow(tk.Tk, Updatable):
                     f"{self.game_data.on_turn_player['name']} bought {self.game_data.on_turn_player_field['name']} "
                     f"for £ {self.messenger.find(section='misc', item='price')['value']}"
                 )
-                self.dialog.show_sold()
-                self.dialog.destroy()
+                self.buy_dialog.show_sold()
+                self.buy_dialog.mandatory = False
             case "auction":
                 self._retrieve_data()
                 self.right_menu.update_game_log(
                     f"{self.game_data.on_turn_player['name']} did not buy {self.game_data.on_turn_player_field['name']}"
                 )
-                time.sleep(2)
-                self.dialog.destroy()
+                self.buy_dialog.mandatory = False
             case "rent_paid":
                 owner = self.game_data.on_turn_player_field["owner"]
                 owner_name = self.game_data.players[owner]["name"]
@@ -197,12 +198,8 @@ class GameWindow(tk.Tk, Updatable):
         self.right_menu.set_control_states()
 
     def show_dialog(self, dialog: Dialog):
-        try:
-            self.dialog.destroy()
-        except AttributeError:
-            pass
-        self.dialog = dialog
-        self.dialog.place(relx=0.5, rely=0.4, anchor="center")
+        dialog.place(relx=0.5, rely=0.4, anchor="center")
+        self.dialogs.append(dialog)
 
     def _set_ready(self, *args):
         self.ready = True
