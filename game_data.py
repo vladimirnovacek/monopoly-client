@@ -92,7 +92,13 @@ class GameData:
             return
         if attribute is not None:
             if item not in self[section]:
-                self[section][item] = {}
+                if section == 'fields':
+                    new_item = {'field_id': item}
+                elif section == 'players':
+                    new_item = {'player_id': item}
+                else:
+                    new_item = {}
+                self[section][item] = new_item
             self[section][item][attribute] = value
         else:
             self[section][item] = value
