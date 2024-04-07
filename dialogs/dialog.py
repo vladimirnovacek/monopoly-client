@@ -71,7 +71,7 @@ class DeedDialog(Dialog):
 
     def __init__(self, master, field: Field, **kwargs):
         super().__init__(master)
-        self.field = field
+        self.field: Field = field
         if self.field["type"] == "street":
             self.card = StreetCard(self)
         elif self.field["type"] == "utility":
